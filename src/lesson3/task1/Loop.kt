@@ -5,7 +5,6 @@ package lesson3.task1
 import kotlin.math.PI
 import kotlin.math.sqrt
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.pow
 
 /**
@@ -71,8 +70,9 @@ fun digitCountInNumber(n: Int, m: Int): Int =
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
+// расширил из множества N на множество Z чисел
 fun digitNumber(n: Int): Int {
-    var variablen: Int = n
+    var variablen: Int = abs(n)
     var counter = 0
     while (variablen > 0) {
         variablen /= 10
@@ -153,14 +153,17 @@ fun maxDivisor(n: Int): Int {
  * Например, 25 и 49 взаимно простые, а 6 и 8 -- нет.
  */
 
-// если при делении целого числа и действительного на одно и то же число результат совпадает, значит,
-// число делится нацело на данное. Следовательно, когда для m и n исполняется это условие,
-// числа - не взаимно простые. А иначе - взаимно простые.
+// если числа взаимно простые, то их НОД == 1. Задача сводится к поиску НОД. Изменил для повышения оптимизации.
 fun isCoPrime(m: Int, n: Int): Boolean {
-    for (i in 2..max(m, n)) {
-        if ((m.toDouble() / i == (m / i).toDouble()) && (n.toDouble() / i == (n / i).toDouble())) return false
+    var variablem = m
+    var variablen = n
+    while (true) {
+        when {
+            variablem > variablen -> variablem -= variablen
+            variablem < variablen -> variablen -= variablem
+            else -> return (variablem == 1)
+        }
     }
-    return true
 }
 
 /**

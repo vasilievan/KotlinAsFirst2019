@@ -3,6 +3,8 @@
 package lesson2.task2
 
 import lesson1.task1.sqr
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -90,7 +92,16 @@ fun circleInside(
  * кирпич 4 х 4 х 4 пройдёт через отверстие 4 х 4.
  * Вернуть true, если кирпич пройдёт
  **/
-// т.к. дан прямоугольный параллелепипед, необходимо и достаточно, чтобы площадь отверстия в стене
-// была равна одной из площадей граней кирпича
-fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean =
-    (a * b <= r * s) || (b * c <= r * s) || (a * c <= r * s)
+// изменил идею проверки. Сначала выбираем две наименьшие грани кирпича. Если наибольшая из этих двух граней
+// меньше или равна по длине наибольшей из граней отверстия и наименьшая из этих двух граней меньше или равна
+// наименьшей из граней отверстия, то кирпич пройдет
+fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean {
+    val minimum: Int = min(min(a, b), min(b, c))
+    var minimumTwo = 0
+    when (minimum) {
+        a -> minimumTwo = min(b, c)
+        b -> minimumTwo = min(a, c)
+        c -> minimumTwo = min(a, b)
+    }
+    return (max(minimum, minimumTwo) <= max(r, s)) && (min(minimum, minimumTwo) <= min(r, s))
+}

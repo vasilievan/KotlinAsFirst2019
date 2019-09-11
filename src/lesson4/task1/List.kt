@@ -177,10 +177,10 @@ fun polynom(p: List<Int>, x: Int): Int {
     var summary = 0.0
     return if (p.isEmpty()) 0
     else {
-        for (i in p.indices) {
-            summary += p[i].toDouble() * x.toDouble().pow(i)
+        for (i in 1 until p.size) {
+            summary += p[i] * x.toDouble().pow(i).toInt()
         }
-        summary.toInt()
+        summary.toInt() + p[0]
     }
 }
 
@@ -253,6 +253,7 @@ fun factorizeToString(n: Int): String {
  */
 fun convert(n: Int, base: Int): List<Int> {
     var variablen = n
+    if (variablen == 0) return listOf(0)
     val arrOfNumbers = mutableListOf<Int>()
     while (variablen > 0) {
         arrOfNumbers.add(variablen % base)
@@ -275,6 +276,7 @@ fun convert(n: Int, base: Int): List<Int> {
 fun convertToString(n: Int, base: Int): String {
     val strOfAlphabet = "0123456789abcdefghijklmnopqrstuvwxyz"
     var variablen = n
+    if (variablen == 0) return "0"
     val list = mutableListOf<Char>()
     while (variablen > 0) {
         list.add(strOfAlphabet[variablen % base])
@@ -426,11 +428,11 @@ fun russian(n: Int): String {
     // коварные 11-19
     if ((servingArray.size >= 2) && (servingArray.size <= 4)) {
         println("yes")
-        if ((servingArray[1]*10 + servingArray[0]) in 11..19) {
+        if ((servingArray[1] * 10 + servingArray[0]) in 11..19) {
             checkingforelevennineteen += 1
         }
     } else if (servingArray.size >= 5) {
-        if ((servingArray[0]*10 + servingArray[1]) in 11..19) {
+        if ((servingArray[1] * 10 + servingArray[0]) in 11..19) {
             checkingforelevennineteen += 1
         }
         if ((servingArray[3] + 10 * servingArray[4]) in 11..19) {

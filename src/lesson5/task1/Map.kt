@@ -266,7 +266,7 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
 // воспользуемся стандартным поиском наименьшего
 
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? {
-    var nameWeAreLookingFor = ""
+    var nameWeAreLookingFor = "element wasn\'t found, sorry("
     var minimumCost: Double = Double.MAX_VALUE
     for (item in stuff) {
         if ((item.value.first == kind) && (item.value.second < minimumCost)) {
@@ -274,7 +274,7 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
             minimumCost = item.value.second
         }
     }
-    return if (nameWeAreLookingFor != "") {
+    return if (nameWeAreLookingFor != "element wasn\'t found, sorry(") {
         nameWeAreLookingFor
     } else {
         null
@@ -370,6 +370,7 @@ fun hasAnagrams(words: List<String>): Boolean {
         val currentValue = words[i]
         helperArr.add(currentValue.toCharArray().map { it.toInt() }.sorted())
     }
+    if (helperArr.isEmpty()) return false
     helperArr.sortBy { it[0] }
     for (i in 0..words.size - 2) {
         if (helperArr[i] == helperArr[i + 1]) {
@@ -492,7 +493,7 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
             )
         )
     }
-    helperArr.sortBy { it.first.second }
+    helperArr.sortByDescending { it.first.second }
     for (item in helperArr) {
         if (item.second.first <= variableCapacity) {
             variableCapacity -= item.second.first

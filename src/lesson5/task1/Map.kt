@@ -266,6 +266,7 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
 // воспользуемся стандартным поиском наименьшего
 
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? {
+    if (kind == "") return ""
     var nameWeAreLookingFor = ""
     var minimumCost: Double = Double.MAX_VALUE
     for (item in stuff) {
@@ -295,6 +296,7 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
 // содержащего данные буквы из строки
 
 fun canBuildFrom(chars: List<Char>, word: String): Boolean {
+    if (word == "") return true
     val helperSet: MutableSet<Char> = mutableSetOf()
     val charsSet: MutableSet<Char> = mutableSetOf()
     helperSet.addAll(word.toLowerCase().toCharArray().toList())
@@ -359,6 +361,11 @@ fun extractRepeats(list: List<String>): Map<String, Int> {
 // проверяем два соседних элемента на эквивалентность
 
 fun hasAnagrams(words: List<String>): Boolean {
+    var counter = 0
+    for (i in words) {
+        if (i == "") counter += 1
+    }
+    if (counter % 2 == 0) return true
     val helperArr: MutableList<List<Int>> = mutableListOf()
     for (i in words.indices) {
         val currentValue = words[i]
@@ -403,13 +410,14 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
     for (item in friends) {
         resultMap[item.key] = item.value.toMutableSet()
         toCountEmpty.add(item.key)
+        toCountEmpty.addAll(item.value)
         val currentValue = resultMap[item.key]
         if (currentValue != null) {
             for (i in currentValue) {
                 val helper = friends[i]
                 if (helper != null) {
                     resultMap[item.key]?.addAll((helper - item.key).toList())
-                    toCountEmpty.addAll(helper.toList())
+
                 }
             }
         }

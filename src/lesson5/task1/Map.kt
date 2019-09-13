@@ -266,7 +266,6 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
 // воспользуемся стандартным поиском наименьшего
 
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? {
-    if (kind == "") return ""
     var nameWeAreLookingFor = ""
     var minimumCost: Double = Double.MAX_VALUE
     for (item in stuff) {
@@ -301,7 +300,7 @@ fun canBuildFrom(chars: List<Char>, word: String): Boolean {
     val charsSet: MutableSet<Char> = mutableSetOf()
     helperSet.addAll(word.toLowerCase().toCharArray().toList())
     charsSet.addAll(chars)
-    return charsSet == helperSet
+    return helperSet == charsSet.intersect(helperSet)
 }
 
 /**
@@ -365,7 +364,7 @@ fun hasAnagrams(words: List<String>): Boolean {
     for (i in words) {
         if (i == "") counter += 1
     }
-    if (counter % 2 == 0) return true
+    if (counter > 1) return true
     val helperArr: MutableList<List<Int>> = mutableListOf()
     for (i in words.indices) {
         val currentValue = words[i]

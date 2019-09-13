@@ -211,7 +211,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
         if (itemkey in resultMap) {
             val itemvalue = resultMap[itemkey]
             if (itemvalue != null) {
-                if ((!itemvalue.contains(itemval)) || (itemval == "")) {
+                if (((!itemvalue.contains(itemval)) || (itemval == "")) && (resultMap[itemkey] != "")) {
                     resultMap[itemkey] = "$itemvalue, $itemval"
                 }
             }
@@ -233,18 +233,23 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
  *     -> mapOf("MSFT" to 150.0, "NFLX" to 40.0)
  */
 fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Double> {
-    val resultarr: MutableMap<String, Double> = mutableMapOf()
+    val resultarr: MutableMap<String, Pair<Double, Double>> = mutableMapOf()
     for (item in stockPrices) {
         if (item.first in resultarr) {
-            val currentValue = resultarr[item.first]
-            if (currentValue != null) {
-                resultarr[item.first] = (currentValue + item.second) / 2
+            val cost = resultarr[item.first]
+            if (cost != null) {
+                resultarr[item.first] = Pair(cost.first + 1.0, cost.second + item.second)
             }
         } else {
-            resultarr[item.first] = item.second
+            resultarr[item.first] = Pair(1.0, item.second)
         }
     }
-    return resultarr.toMap()
+    val resultMap: MutableMap<String, Double> = mutableMapOf()
+    println(resultMap)
+    for (item in resultarr) {
+        resultMap[item.key] = item.value.second / item.value.first
+    }
+    return resultMap
 }
 
 /**
@@ -416,11 +421,11 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
     for (item in friends) {
         resultMap[item.key] = item.value.toMutableSet()
         toCountEmpty.add(item.key)
-        if (item.value != setOf("")){
+        if (item.value != setOf("")) {
             toCountEmpty.addAll(item.value)
         }
         val currentValue = resultMap[item.key]
-        var modifier: MutableList<String>  = mutableListOf()
+        var modifier: MutableList<String> = mutableListOf()
         if ((currentValue != null && (currentValue != mutableListOf("")))) {
             for (i in currentValue) {
                 val helper = friends[i]

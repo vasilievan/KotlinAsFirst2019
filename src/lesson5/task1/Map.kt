@@ -299,7 +299,8 @@ fun canBuildFrom(chars: List<Char>, word: String): Boolean {
     val helperSet: MutableSet<Char> = mutableSetOf()
     val charsSet: MutableSet<Char> = mutableSetOf()
     helperSet.addAll(word.toLowerCase().toCharArray().toList())
-    charsSet.addAll(chars)
+    val varchar = chars.joinToString(", ") { it.toString() }.toLowerCase().toCharArray()
+    charsSet.addAll(varchar.toList())
     return helperSet == charsSet.intersect(helperSet)
 }
 

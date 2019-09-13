@@ -197,7 +197,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
         if (itemkey in resultMap) {
             val itemvalue = resultMap[itemkey]
             if (itemvalue != null) {
-                if (!itemvalue.contains(itemval)) {
+                if ((!itemvalue.contains(itemval)) || (itemval == "")) {
                     resultMap[itemkey] = "$itemvalue, $itemval"
                 }
             }
@@ -211,7 +211,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
         if (itemkey in resultMap) {
             val itemvalue = resultMap[itemkey]
             if (itemvalue != null) {
-                if (!itemvalue.contains(itemval)) {
+                if ((!itemvalue.contains(itemval)) || (itemval == "")) {
                     resultMap[itemkey] = "$itemvalue, $itemval"
                 }
             }
@@ -369,7 +369,12 @@ fun hasAnagrams(words: List<String>): Boolean {
     val helperArr: MutableList<List<Int>> = mutableListOf()
     for (i in words.indices) {
         val currentValue = words[i]
-        helperArr.add(currentValue.toCharArray().map { it.toInt() }.sorted())
+        if (currentValue != "") {
+            helperArr.add(currentValue.toCharArray().map { it.toInt() }.sorted())
+        } else {
+            helperArr.add(listOf(-78557759))
+        }
+
     }
     if (helperArr.isEmpty()) return false
     helperArr.sortBy { it[0] }

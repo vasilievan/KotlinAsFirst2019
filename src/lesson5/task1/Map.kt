@@ -416,17 +416,20 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
     for (item in friends) {
         resultMap[item.key] = item.value.toMutableSet()
         toCountEmpty.add(item.key)
-        toCountEmpty.addAll(item.value)
+        if (item.value != setOf("")){
+            toCountEmpty.addAll(item.value)
+        }
         val currentValue = resultMap[item.key]
-        if (currentValue != null) {
+        var modifier: MutableList<String>  = mutableListOf()
+        if ((currentValue != null && (currentValue != mutableListOf("")))) {
             for (i in currentValue) {
                 val helper = friends[i]
                 if (helper != null) {
-                    resultMap[item.key]?.addAll((helper - item.key).toList())
-
+                    modifier = (helper - setOf("") - item.key).toMutableList()
                 }
             }
         }
+        resultMap[item.key]?.addAll(modifier)
     }
     for (item in toCountEmpty) {
         if (item !in resultMap) {

@@ -491,7 +491,6 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
 // упаковываем в рюкзак сокровища по плотности, учитывая постепенную наполняемость. Profit!
 
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-    var variableCapacity = capacity
     val resultSet: MutableSet<String> = mutableSetOf()
     val helperArr: MutableList<Pair<Pair<String, Double>, Pair<Int, Int>>> = mutableListOf()
     for (item in treasures) {
@@ -503,10 +502,32 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         )
     }
     helperArr.sortByDescending { it.first.second }
+    var currentPrice: MutableMap<String, Int> = mutableMapOf()
+    for (lostName in treasures) {
+        var variableCapacity = capacity
+        for (item in helperArr) {
+            if ((item.first.first != lostName.key) && (item.second.first <= variableCapacity)) {
+                val secondhelper = currentPrice[item.first.first]
+                if (secondhelper != null) {
+                    currentPrice[item.first.first] = secondhelper + item.second.second
+                }
+                variableCapacity -= item.second.first
+            }
+        }
+    }
+    var maximum = Int.MIN_VALUE
+    var CurName = ""
+    for (item in currentPrice) {
+        if (item.value > maximum) {
+            maximum = item.value
+            CurName = item.key
+        }
+    }
+    var variableCapacity = capacity
     for (item in helperArr) {
-        if (item.second.first <= variableCapacity) {
-            variableCapacity -= item.second.first
+        if ((item.first.first != CurName) && (item.second.first <= variableCapacity)) {
             resultSet.add(item.first.first)
+            variableCapacity -= item.second.first
         }
     }
     return resultSet

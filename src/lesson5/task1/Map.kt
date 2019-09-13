@@ -381,11 +381,13 @@ fun hasAnagrams(words: List<String>): Boolean {
         }
 
     }
-    if (helperArr.isEmpty()) return false
-    helperArr.sortBy { it[0] }
-    for (i in 0..words.size - 2) {
-        if (helperArr[i] == helperArr[i + 1]) {
-            return true
+    if (helperArr.isEmpty() || (helperArr.size == 1)) return false
+    for (item in 0..helperArr.size - 2) {
+        var q = item + 1
+        for (itemTwo in q..helperArr.size - 1) {
+            if (helperArr[item] == helperArr[itemTwo]) {
+                return true
+            }
         }
     }
     return false

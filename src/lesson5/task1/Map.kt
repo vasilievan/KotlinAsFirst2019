@@ -405,27 +405,29 @@ fun hasAnagrams(words: List<String>): Boolean {
 fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> {
     val resultMap: MutableMap<String, MutableSet<String>> = mutableMapOf()
     val toCountEmpty: MutableSet<String> = mutableSetOf()
-    for (item in friends) {
-        resultMap[item.key] = item.value.toMutableSet()
-        toCountEmpty.add(item.key)
-        if (item.value != setOf("")) {
-            toCountEmpty.addAll(item.value)
-        }
-        val currentValue = resultMap[item.key]
-        var modifier: MutableList<String> = mutableListOf()
-        if ((currentValue != null && (currentValue != mutableListOf("")))) {
-            for (i in currentValue) {
-                val helper = friends[i]
-                if (helper != null) {
-                    modifier = (helper - setOf("") - item.key).toMutableList()
+    for (k in 0..friends.size - 1) {
+        for (item in friends) {
+            resultMap[item.key] = item.value.toMutableSet()
+            toCountEmpty.add(item.key)
+            if (item.value != setOf("")) {
+                toCountEmpty.addAll(item.value)
+            }
+            val currentValue = resultMap[item.key]
+            var modifier: MutableList<String> = mutableListOf()
+            if ((currentValue != null && (currentValue != mutableListOf("")))) {
+                for (i in currentValue) {
+                    val helper = friends[i]
+                    if (helper != null) {
+                        modifier = (helper - setOf("") - item.key).toMutableList()
+                    }
                 }
             }
+            resultMap[item.key]?.addAll(modifier)
         }
-        resultMap[item.key]?.addAll(modifier)
-    }
-    for (item in toCountEmpty) {
-        if (item !in resultMap) {
-            resultMap[item] = mutableSetOf()
+        for (item in toCountEmpty) {
+            if (item !in resultMap) {
+                resultMap[item] = mutableSetOf()
+            }
         }
     }
     return resultMap.toMap()

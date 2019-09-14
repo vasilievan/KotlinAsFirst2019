@@ -296,17 +296,11 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
 
-// находим эквивалентность множеств: содержащего данные буквы из списка и множества,
-// содержащего данные буквы из строки
-
 fun canBuildFrom(chars: List<Char>, word: String): Boolean {
     if (word == "") return true
-    val helperSet: MutableSet<Char> = mutableSetOf()
-    val charsSet: MutableSet<Char> = mutableSetOf()
-    helperSet.addAll(word.toLowerCase().toCharArray().toList())
-    val varchar = chars.joinToString(", ") { it.toString() }.toLowerCase().toCharArray()
-    charsSet.addAll(varchar.toList())
-    return helperSet == charsSet.intersect(helperSet)
+    val wordToLowerCase = word.toLowerCase().toList().toSet()
+    val charsSet = chars.map { it.toLowerCase() }.toSet()
+    return wordToLowerCase == wordToLowerCase.intersect(charsSet)
 }
 
 /**

@@ -190,36 +190,24 @@ fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
  *   ) -> mapOf("Emergency" to "112, 911", "Police" to "02")
  */
 fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<String, String> {
-    val resultMap: MutableMap<String, String> = mutableMapOf()
+    var resultMap: MutableMap<String, String> = mutableMapOf()
     for (item in mapA) {
-        val itemkey = item.key
-        val itemval = item.value
-        if (itemkey in resultMap) {
-            val itemvalue = resultMap[itemkey]
-            if (itemvalue != null) {
-                if ((!itemvalue.contains(itemval)) || (itemval == "")) {
-                    resultMap[itemkey] = "$itemvalue, $itemval"
-                }
-            }
-        } else {
-            resultMap[itemkey] = itemval
-        }
+        resultMap[item.key] = item.value
     }
     for (item in mapB) {
-        val itemkey = item.key
-        val itemval = item.value
-        if (itemkey in resultMap) {
-            val itemvalue = resultMap[itemkey]
-            if (itemvalue != null) {
-                if (((!itemvalue.contains(itemval)) || (itemval == "")) && (resultMap[itemkey] != "")) {
-                    resultMap[itemkey] = "$itemvalue, $itemval"
+        if (item.key in resultMap) {
+            val currentValue = resultMap[item.key]
+            if (currentValue != null) {
+                if ((item.value !in currentValue) || (item.value == "")) {
+                    resultMap[item.key] = currentValue + ", " + item.value
                 }
             }
+
         } else {
-            resultMap[itemkey] = itemval
+            resultMap[item.key] = item.value
         }
     }
-    return resultMap
+    return resultMap.toMap()
 }
 
 /**

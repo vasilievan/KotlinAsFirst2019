@@ -190,7 +190,7 @@ fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
  *   ) -> mapOf("Emergency" to "112, 911", "Police" to "02")
  */
 fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<String, String> {
-    var resultMap: MutableMap<String, String> = mutableMapOf()
+    val resultMap: MutableMap<String, String> = mutableMapOf()
     for (item in mapA) {
         resultMap[item.key] = item.value
     }
@@ -198,7 +198,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
         if (item.key in resultMap) {
             val currentValue = resultMap[item.key]
             if (currentValue != null) {
-                if ((item.value !in currentValue) || (item.value == "")) {
+                if ((item.value !in currentValue) || ((item.value == "") && (currentValue != ""))) {
                     resultMap[item.key] = currentValue + ", " + item.value
                 }
             }
@@ -365,7 +365,7 @@ fun hasAnagrams(words: List<String>): Boolean {
     }
     if (helperArr.isEmpty() || (helperArr.size == 1)) return false
     for (item in 0..helperArr.size - 2) {
-        var q = item + 1
+        val q = item + 1
         for (itemTwo in q..helperArr.size - 1) {
             if (helperArr[item] == helperArr[itemTwo]) {
                 return true

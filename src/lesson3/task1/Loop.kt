@@ -2,10 +2,7 @@
 
 package lesson3.task1
 
-import kotlin.math.PI
-import kotlin.math.sqrt
-import kotlin.math.abs
-import kotlin.math.pow
+import kotlin.math.*
 
 /**
  * Пример
@@ -72,7 +69,7 @@ fun digitCountInNumber(n: Int, m: Int): Int =
  */
 // расширил из множества N на множество Z чисел
 fun digitNumber(n: Int): Int {
-    var variablen: Int = abs(n)
+    var variablen = abs(n)
     var counter = 0
     while (variablen > 0) {
         variablen /= 10
@@ -108,18 +105,22 @@ fun fib(n: Int): Int {
  * минимальное число k, которое делится и на m и на n без остатка
  */
 
-// НОК и НОД связаны отношением: a*b/НОД = НОК. Сначала найдем НОД по алгоритму Евклида, а затем найдем НОК.
-fun lcm(m: Int, n: Int): Int {
-    var variablem: Int = m
-    var variablen: Int = n
+// НОД по Евклиду
+fun greatestcommondivision(m: Int, n: Int): Int {
+    var variablem = m
+    var variablen = n
     while (true) {
         when {
             variablem > variablen -> variablem -= variablen
             variablem < variablen -> variablen -= variablem
-            else -> return m * n / variablen
+            else -> return variablen
         }
     }
 }
+
+// НОК и НОД связаны отношением: a*b/НОД = НОК. Сначала найдем НОД по
+// алгоритму Евклида (выше), а затем найдем НОК.
+fun lcm(m: Int, n: Int): Int = m * n / greatestcommondivision(m, n)
 
 /**
  * Простая
@@ -138,12 +139,7 @@ fun minDivisor(n: Int): Int {
  *
  * Для заданного числа n > 1 найти максимальный делитель, меньший n
  */
-fun maxDivisor(n: Int): Int {
-    for (i in n - 1 downTo 1) {
-        if (n % i == 0) return i
-    }
-    return 2
-}
+fun maxDivisor(n: Int): Int = n / minDivisor(n)
 
 /**
  * Простая
@@ -153,18 +149,8 @@ fun maxDivisor(n: Int): Int {
  * Например, 25 и 49 взаимно простые, а 6 и 8 -- нет.
  */
 
-// если числа взаимно простые, то их НОД == 1. Задача сводится к поиску НОД. Изменил для повышения оптимизации.
-fun isCoPrime(m: Int, n: Int): Boolean {
-    var variablem = m
-    var variablen = n
-    while (true) {
-        when {
-            variablem > variablen -> variablem -= variablen
-            variablem < variablen -> variablen -= variablem
-            else -> return (variablem == 1)
-        }
-    }
-}
+// если числа взаимно простые, то их НОД == 1. Задача сводится к поиску НОД.
+fun isCoPrime(m: Int, n: Int): Boolean = greatestcommondivision(m, n) == 1
 
 /**
  * Простая
@@ -179,7 +165,7 @@ fun isCoPrime(m: Int, n: Int): Boolean {
 // то существует хотя бы один точный кадрат. Иначе - нет.
 fun squareBetweenExists(m: Int, n: Int): Boolean {
     for (i in m..n) {
-        if (sqrt(i.toDouble()) == sqrt(i.toDouble()).toInt().toDouble()) {
+        if (floor(sqrt(i.toDouble())) == ceil(sqrt(i.toDouble()))) {
             return true
         }
     }
@@ -203,7 +189,7 @@ fun squareBetweenExists(m: Int, n: Int): Boolean {
  * этого для какого-либо начального X > 0.
  */
 fun collatzSteps(x: Int): Int {
-    var variablex: Int = x
+    var variablex = x
     var counter = 0
     while (variablex != 1) {
         if (variablex % 2 == 0) variablex /= 2
@@ -226,22 +212,11 @@ fun collatzSteps(x: Int): Int {
 // решим через ряд Тейлора, используя функцию факториала, написанную выше. Перед этим, используя принцип периодичности,
 // приведем аргумент синуса к промежутку [0, PI * 2]
 fun sin(x: Double, eps: Double): Double {
-    // на всякий случай включил функцию факториала внутрь функции, мало ли как проходит компилляция
-    fun factorial(n: Int): Double {
-        var result = 1.0
-        for (i in 1..n) {
-            result *= i
-        }
-        return result
-    }
-
     var meaning = 0.0
-    var variablex: Double = x
+    var variablex = x
     var term: Double
     if (x > 0) {
-        while (variablex > 2 * PI) {
-            variablex -= 2 * PI
-        }
+        variablex %= 2 * PI
     } else {
         while (variablex < 0) {
             variablex += 2 * PI
@@ -266,22 +241,11 @@ fun sin(x: Double, eps: Double): Double {
  * Использовать kotlin.math.cos и другие стандартные реализации функции косинуса в этой задаче запрещается.
  */
 fun cos(x: Double, eps: Double): Double {
-    // на всякий случай включил функцию факториала внутрь функции, мало ли как проходит компилляция
-    fun factorial(n: Int): Double {
-        var result = 1.0
-        for (i in 1..n) {
-            result *= i
-        }
-        return result
-    }
-
     var meaning = 0.0
-    var variablex: Double = x
+    var variablex = x
     var term: Double
     if (x > 0) {
-        while (variablex > 2 * PI) {
-            variablex -= 2 * PI
-        }
+        variablex %= 2 * PI
     } else {
         while (variablex < 0) {
             variablex += 2 * PI
@@ -309,11 +273,7 @@ fun cos(x: Double, eps: Double): Double {
 fun revert(n: Int): Int {
     var variablen = n
     var resultNum = 0
-    var counter: Int = -1
-    while (variablen > 0) {
-        variablen /= 10
-        counter++
-    }
+    var counter = digitNumber(n) - 1
     variablen = n
     while (variablen > 0) {
         resultNum += ((variablen % 10) * (10.0).pow(counter)).toInt()
@@ -335,22 +295,7 @@ fun revert(n: Int): Int {
 
 // по аналогии с предыдущей задачей с одним отличием:
 // в конце вернуть результат сравнения начального и получившегося числа
-fun isPalindrome(n: Int): Boolean {
-    var variablen = n
-    var resultNum = 0
-    var counter: Int = -1
-    while (variablen > 0) {
-        variablen /= 10
-        counter++
-    }
-    variablen = n
-    while (variablen > 0) {
-        resultNum += ((variablen % 10) * (10.0).pow(counter)).toInt()
-        variablen /= 10
-        counter--
-    }
-    return n == resultNum
-}
+fun isPalindrome(n: Int): Boolean = (revert(n) == n)
 
 /**
  * Средняя
@@ -363,7 +308,7 @@ fun isPalindrome(n: Int): Boolean {
 
 // будем сравнивать предыдущую цифру со следующей
 fun hasDifferentDigits(n: Int): Boolean {
-    var variablen: Int = n
+    var variablen = n
     var resultNumOne: Int
     var resultNumTwo: Int
     while (variablen > 9) {
@@ -388,21 +333,9 @@ fun squareSequenceDigit(n: Int): Int {
     var currentPosition = 0
     var increment = 1
     var currentNum = 0
-    fun digitsInNumbers(i: Int): Int {
-        var variablei: Int = i
-        var counter = 0
-
-        while (variablei > 0) {
-            variablei /= 10
-            counter += 1
-        }
-        return if (i != 0) counter
-        else 1
-    }
-
     while (currentPosition < n) {
         currentNum = increment * increment
-        currentPosition += digitsInNumbers(increment * increment)
+        currentPosition += digitNumber(increment * increment)
         increment++
     }
     return if (currentPosition == n) {
@@ -426,35 +359,12 @@ fun squareSequenceDigit(n: Int): Int {
  */
 
 fun fibSequenceDigit(n: Int): Int {
-    fun fib(n: Int): Int {
-        var firstNum = 1
-        var secondNum = 1
-        var thirdNum: Int = firstNum + secondNum
-        for (i in 1..n - 3) {
-            firstNum = secondNum
-            secondNum = thirdNum
-            thirdNum = firstNum + secondNum
-        }
-        return if (n < 3) 1
-        else thirdNum
-    }
-
     var currentPosition = 0
     var increment = 1
     var currentNum = 0
-    fun digitsInNumbers(i: Int): Int {
-        var variablei: Int = i
-        var counter = 0
-        while(variablei > 0) {
-            variablei /= 10
-            counter += 1
-        }
-        return counter
-    }
-
     while (currentPosition < n) {
         currentNum = fib(increment)
-        currentPosition += digitsInNumbers(fib(increment))
+        currentPosition += digitNumber(fib(increment))
         increment++
     }
     return if (currentPosition == n) {

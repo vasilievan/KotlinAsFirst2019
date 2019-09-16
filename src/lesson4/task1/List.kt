@@ -127,7 +127,7 @@ fun abs(v: List<Double>): Double =
  */
 fun mean(list: List<Double>): Double {
     return if (list.isNotEmpty()) {
-        list.fold(0.0) { previousElement, currentElement -> previousElement + currentElement } / list.size
+        (list.fold(0.0) { previousElement, currentElement -> previousElement + currentElement }) / list.size
     } else 0.0
 }
 
@@ -140,11 +140,10 @@ fun mean(list: List<Double>): Double {
  *
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
-fun center(list: MutableList<Double>): MutableList<Double> {
-    val arithmeticMean: Double =
-        (list.fold(0.0) { previousElement, currentElement -> previousElement + currentElement }) / list.size
-    for (i in 0 until list.size) {
-        list[i] -= arithmeticMean
+fun center(list: MutableList<Double>): List<Double> {
+    val meanValue = mean(list)
+    for (i in list.indices) {
+        list[i] -= meanValue
     }
     return list
 }
@@ -174,13 +173,13 @@ fun times(a: List<Int>, b: List<Int>): Int {
  * Значение пустого многочлена равно 0 при любом x.
  */
 fun polynom(p: List<Int>, x: Int): Int {
-    var summary = 0.0
+    var summary = 0
     return if (p.isEmpty()) 0
     else {
         for (i in 1 until p.size) {
             summary += p[i] * x.toDouble().pow(i).toInt()
         }
-        summary.toInt() + p[0]
+        summary + p[0]
     }
 }
 
@@ -195,11 +194,8 @@ fun polynom(p: List<Int>, x: Int): Int {
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
 fun accumulate(list: MutableList<Int>): MutableList<Int> {
-    if (list.size == 0) return list
-    else {
-        for (i in 1 until list.size) {
-            list[i] += list[i - 1]
-        }
+    for (i in 1 until list.size) {
+        list[i] += list[i - 1]
     }
     return list
 }
@@ -212,7 +208,7 @@ fun accumulate(list: MutableList<Int>): MutableList<Int> {
  * Множители в списке должны располагаться по возрастанию.
  */
 fun factorize(n: Int): List<Int> {
-    var variablen: Int = n
+    var variablen = n
     val list = mutableListOf<Int>()
     var currentNumber = 2
     while (variablen > 1) {
@@ -231,18 +227,7 @@ fun factorize(n: Int): List<Int> {
  * Результат разложения вернуть в виде строки, например 75 -> 3*5*5
  * Множители в результирующей строке должны располагаться по возрастанию.
  */
-fun factorizeToString(n: Int): String {
-    var variablen: Int = n
-    val list = mutableListOf<Int>()
-    var currentNumber = 2
-    while (variablen > 1) {
-        if (variablen % currentNumber == 0) {
-            list.add(currentNumber)
-            variablen /= currentNumber
-        } else currentNumber += 1
-    }
-    return list.joinToString(separator = "*") { it -> "$it" }
-}
+fun factorizeToString(n: Int): String = factorize(n).joinToString(separator = "*") { it -> "$it" }
 
 /**
  * Средняя
@@ -292,16 +277,7 @@ fun convertToString(n: Int, base: Int): String {
  * из системы счисления с основанием base в десятичную.
  * Например: digits = (1, 3, 12), base = 14 -> 250
  */
-fun decimal(digits: List<Int>, base: Int): Int {
-    var resulOfFun = 0.0
-    val variableBase = base.toDouble()
-    var currentPosition = 0
-    for (i in digits.size - 1 downTo 0) {
-        resulOfFun += digits[currentPosition] * variableBase.pow(i)
-        currentPosition++
-    }
-    return resulOfFun.toInt()
-}
+fun decimal(digits: List<Int>, base: Int): Int = polynom(digits.reversed(), base)
 
 /**
  * Сложная
@@ -337,38 +313,32 @@ fun decimalFromString(str: String, base: Int): Int {
  */
 fun roman(n: Int): String {
     // делаю аналог String*Int из Python, ибо без него совсем грустно...((
-    fun multipleString(str: String, counter: Int): String {
-        var variablestring = ""
-        for (i in 1..counter) {
-            variablestring += str
-        }
-        return variablestring
-    }
-
     var resultString = ""
     val alphabet = "IVXLCDM"
     var j = 0
     // или как получить цифры числа в обратном порядке
-    val servingArray = n.toString().reversed().toCharArray().map { it.toString().toInt() }
+    val servingArray = n.toString().reversed().map { it.toString().toInt() }
     // здесь просто по правилам Римской СС
-    for (i in servingArray.indices) {
-        if (servingArray[i] in 1..3) {
-            resultString = multipleString(alphabet[j].toString(), servingArray[i]) + resultString
-            j += 2
-        } else if (servingArray[i] in 6..8) {
-            resultString =
-                alphabet[j + 1].toString() + multipleString(alphabet[j].toString(), servingArray[i] - 5) + resultString
-            j += 2
-        } else if (servingArray[i] == 5) {
-            resultString = alphabet[j + 1].toString() + resultString
-            j += 2
-        } else if (servingArray[i] == 4) {
-            resultString = alphabet[j] + alphabet[j + 1].toString() + resultString
-            j += 2
-        } else if (servingArray[i] == 9) {
-            resultString = alphabet[j] + alphabet[j + 2].toString() + resultString
-            j += 2
-        } else j += 2
+    for (i in servingArray) {
+        when (i) {
+            in 1..3 -> {
+                resultString = alphabet[j].toString().repeat(i) + resultString
+            }
+            in 6..8 -> {
+                resultString =
+                    alphabet[j + 1].toString() + alphabet[j].toString().repeat(i - 5) + resultString
+            }
+            5 -> {
+                resultString = alphabet[j + 1].toString() + resultString
+            }
+            4 -> {
+                resultString = alphabet[j] + alphabet[j + 1].toString() + resultString
+            }
+            9 -> {
+                resultString = alphabet[j] + alphabet[j + 2].toString() + resultString
+            }
+        }
+        j += 2
     }
     return resultString
 }
@@ -421,13 +391,12 @@ fun russian(n: Int): String {
     val thousandsends =
         listOf("тысяча", "тысячи", "тысячи", "тысячи", "тысяч", "тысяч", "тысяч", "тысяч", "тысяч")
 
-    val servingArray = n.toString().reversed().toCharArray().map { it.toString().toInt() }
+    val servingArray = n.toString().reversed().map { it.toString().toInt() }
 
     var checkingforelevennineteen = 0
 
     // коварные 11-19
     if ((servingArray.size >= 2) && (servingArray.size <= 4)) {
-        println("yes")
         if ((servingArray[1] * 10 + servingArray[0]) in 11..19) {
             checkingforelevennineteen += 1
         }
@@ -460,24 +429,24 @@ fun russian(n: Int): String {
         }
         if (i == 3) {
             if ((servingArray[3] != 0) && !((checkingforelevennineteen == 2) || (checkingforelevennineteen == 3))) {
-                resultstr = thousandsnum[servingArray[i] - 1] + " " + thousandsends[servingArray[i]-1] + " " + resultstr
+                resultstr =
+                    thousandsnum[servingArray[i] - 1] + " " + thousandsends[servingArray[i] - 1] + " " + resultstr
             }
         }
         if (i == 4) {
             if ((checkingforelevennineteen == 2) || (checkingforelevennineteen == 3)) {
                 resultstr = fromelventonineteen[servingArray[3] - 1] + " " + "тысяч" + " " + resultstr
-            } else if ((servingArray[4] != 0) && (servingArray[3] != 0)){
+            } else if ((servingArray[4] != 0) && (servingArray[3] != 0)) {
                 resultstr = decades[servingArray[i] - 1] + " " + resultstr
-            } else if ((servingArray[4] != 0) && (servingArray[3] == 0)){
+            } else if ((servingArray[4] != 0) && (servingArray[3] == 0)) {
                 resultstr = decades[servingArray[i] - 1] + " " + "тысяч" + " " + resultstr
             }
         }
         if (i == 5) {
-            if ((servingArray[5] != 0) && (servingArray[4] == 0) && (servingArray[3] == 0)) {
-                resultstr = hundreds[servingArray[5] - 1] + " " + "тысяч" + " " + resultstr
-            }
-            else {
-                resultstr = hundreds[servingArray[5] - 1] + " " + resultstr
+            resultstr = if ((servingArray[5] != 0) && (servingArray[4] == 0) && (servingArray[3] == 0)) {
+                hundreds[servingArray[5] - 1] + " " + "тысяч" + " " + resultstr
+            } else {
+                hundreds[servingArray[5] - 1] + " " + resultstr
             }
         }
     }

@@ -3,10 +3,7 @@
 package lesson2.task2
 
 import lesson1.task1.sqr
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.pow
-import kotlin.math.sqrt
+import kotlin.math.*
 
 /**
  * Пример
@@ -25,7 +22,8 @@ fun pointInsideCircle(x: Double, y: Double, x0: Double, y0: Double, r: Double) =
 
 // просто сложим первую и вторую цифру числа, а также третью и четвертую, и сравним суммы
 fun isNumberHappy(number: Int): Boolean =
-    (number / 100) % 10 + ((number / 100) % 100 - (number / 100) % 10) / 10 == (number % 100) % 10 + ((number % 100) % 100 - (number % 100) % 10) / 10
+    (number / 100) % 10 + ((number / 100) % 100 - (number / 100) % 10) / 10 ==
+            (number % 100) % 10 + ((number % 100) % 100 - (number % 100) % 10) / 10
 
 /**
  * Простая
@@ -35,8 +33,7 @@ fun isNumberHappy(number: Int): Boolean =
  * Считать, что ферзи не могут загораживать друг друга.
  */
 fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean =
-    (x1 == x2) || (y1 == y2) || ((y1 - y2).toDouble().pow(2) == (x1 - x2).toDouble().pow(2))
-
+    (x1 == x2) || (y1 == y2) || (abs(y1 - y2) == abs(x1 - x2))
 
 /**
  * Простая
@@ -96,7 +93,7 @@ fun circleInside(
 // меньше или равна по длине наибольшей из граней отверстия и наименьшая из этих двух граней меньше или равна
 // наименьшей из граней отверстия, то кирпич пройдет
 fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean {
-    val minimum: Int = min(min(a, b), min(b, c))
+    val minimum = min(min(a, b), min(b, c))
     var minimumTwo = 0
     when (minimum) {
         a -> minimumTwo = min(b, c)

@@ -2,6 +2,8 @@
 
 package lesson5.task1
 
+import kotlin.math.ceil
+import kotlin.math.log2
 import kotlin.math.max
 import kotlin.math.min
 
@@ -95,18 +97,16 @@ fun buildWordSet(text: List<String>): MutableSet<String> {
  *     -> mapOf(5 to listOf("Семён", "Михаил"), 3 to listOf("Марат"))
  */
 fun buildGrades(grades: Map<String, Int>): Map<Int, List<String>> {
-    val resultMap: MutableMap<Int, List<String>> = mutableMapOf()
-    for (item in grades) {
-        val points = item.value
-        val name = item.key
+    val resultMap = mutableMapOf<Int, MutableList<String>>()
+    for ((name, points) in grades) {
         if (points in resultMap) {
-            var currentList = resultMap[points]
+            val currentList = resultMap[points]
             if (currentList != null) {
-                currentList += listOf(name)
+                currentList.add(name)
                 resultMap[points] = currentList
             }
         } else {
-            resultMap[points] = listOf(name)
+            resultMap[points] = mutableListOf(name)
         }
     }
     return resultMap
@@ -122,16 +122,7 @@ fun buildGrades(grades: Map<String, Int>): Map<Int, List<String>> {
  *   containsIn(mapOf("a" to "z"), mapOf("a" to "z", "b" to "sweet")) -> true
  *   containsIn(mapOf("a" to "z"), mapOf("a" to "zee", "b" to "sweet")) -> false
  */
-fun containsIn(a: Map<String, String>, b: Map<String, String>): Boolean {
-    for (item in a) {
-        val keya = item.key
-        val valuea = item.value
-        if (b[keya] != valuea) {
-            return false
-        }
-    }
-    return true
-}
+fun containsIn(a: Map<String, String>, b: Map<String, String>): Boolean = (a.keys).all { a[it] == b[it] }
 
 /**
  * Простая
@@ -148,9 +139,7 @@ fun containsIn(a: Map<String, String>, b: Map<String, String>): Boolean {
  *     -> a changes to mutableMapOf() aka becomes empty
  */
 fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>): Unit {
-    for (item in b) {
-        val keyb = item.key
-        val valueb = item.value
+    for ((keyb, valueb) in b) {
         if (a[keyb] == valueb) {
             a.remove(keyb)
         }
@@ -164,13 +153,7 @@ fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>): Unit {
  * В выходном списке не должно быть повторяюихся элементов,
  * т. е. whoAreInBoth(listOf("Марат", "Семён, "Марат"), listOf("Марат", "Марат")) == listOf("Марат")
  */
-fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
-    val setA: MutableSet<String> = mutableSetOf()
-    val setB: MutableSet<String> = mutableSetOf()
-    setA.addAll(a)
-    setB.addAll(b)
-    return (setA.intersect(setB)).toList()
-}
+fun whoAreInBoth(a: List<String>, b: List<String>): List<String> = (a.toSet().intersect(b.toSet())).toList()
 
 /**
  * Средняя
@@ -190,24 +173,24 @@ fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
  *   ) -> mapOf("Emergency" to "112, 911", "Police" to "02")
  */
 fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<String, String> {
-    val resultMap: MutableMap<String, String> = mutableMapOf()
-    val setWithPhones: MutableMap<String, MutableSet<String>> = mutableMapOf()
-    for (item in mapA) {
-        resultMap[item.key] = item.value
-        setWithPhones[item.key] = listOf(item.value).toMutableSet()
+    val resultMap = mutableMapOf<String, String>()
+    val setWithPhones = mutableMapOf<String, MutableSet<String>>()
+    for ((key, value) in mapA) {
+        resultMap[key] = value
+        setWithPhones[key] = mutableSetOf(value)
     }
-    for (item in mapB) {
-        if (item.key in resultMap) {
-            val currentValue = resultMap[item.key]
-            val toCheckIfEquals = setWithPhones[item.key]
+    for ((key, value) in mapB) {
+        if (key in resultMap) {
+            val currentValue = resultMap[key]
+            val toCheckIfEquals = setWithPhones[key]
             if ((currentValue != null) && (toCheckIfEquals != null)) {
-                if ((item.value !in toCheckIfEquals) || ((item.value == "") && (currentValue != ""))) {
-                    resultMap[item.key] = currentValue + ", " + item.value
+                if ((value !in toCheckIfEquals) || ((value == "") && (currentValue != ""))) {
+                    resultMap[key] = "$currentValue, $value"
                 }
             }
 
         } else {
-            resultMap[item.key] = item.value
+            resultMap[key] = value
         }
     }
     return resultMap.toMap()
@@ -224,21 +207,20 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
  *     -> mapOf("MSFT" to 150.0, "NFLX" to 40.0)
  */
 fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Double> {
-    val resultarr: MutableMap<String, Pair<Double, Double>> = mutableMapOf()
-    for (item in stockPrices) {
-        if (item.first in resultarr) {
-            val cost = resultarr[item.first]
+    val resultarr = mutableMapOf<String, Pair<Int, Double>>()
+    for ((first, second) in stockPrices) {
+        if (first in resultarr) {
+            val cost = resultarr[first]
             if (cost != null) {
-                resultarr[item.first] = Pair(cost.first + 1.0, cost.second + item.second)
+                resultarr[first] = Pair(cost.first + 1, cost.second + second)
             }
         } else {
-            resultarr[item.first] = Pair(1.0, item.second)
+            resultarr[first] = Pair(1, second)
         }
     }
-    val resultMap: MutableMap<String, Double> = mutableMapOf()
-    println(resultMap)
-    for (item in resultarr) {
-        resultMap[item.key] = item.value.second / item.value.first
+    val resultMap = mutableMapOf<String, Double>()
+    for ((key, value) in resultarr) {
+        resultMap[key] = value.second / value.first
     }
     return resultMap
 }
@@ -260,21 +242,17 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
  */
 
 // воспользуемся стандартным поиском наименьшего
-
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? {
-    var nameWeAreLookingFor = "element wasn\'t found, sorry("
+    var nameWeAreLookingFor: String? = null
     var minimumCost: Double = Double.MAX_VALUE
-    for (item in stuff) {
-        if ((item.value.first == kind) && (item.value.second < minimumCost)) {
-            nameWeAreLookingFor = item.key
-            minimumCost = item.value.second
+    for ((key, value) in stuff) {
+        if ((stuff.size == 1) && (value.second == Double.MAX_VALUE)) nameWeAreLookingFor = value.first
+        if ((value.first == kind) && (value.second < minimumCost)) {
+            nameWeAreLookingFor = key
+            minimumCost = value.second
         }
     }
-    return if (nameWeAreLookingFor != "element wasn\'t found, sorry(") {
-        nameWeAreLookingFor
-    } else {
-        null
-    }
+    return nameWeAreLookingFor
 }
 
 /**
@@ -312,8 +290,8 @@ fun canBuildFrom(chars: List<Char>, word: String): Boolean {
 // убираем кандидатов из конечного ассоциативного массива
 
 fun extractRepeats(list: List<String>): Map<String, Int> {
-    val resultArr: MutableMap<String, Int> = mutableMapOf()
-    val listToRemove: MutableList<String> = mutableListOf()
+    val resultArr = mutableMapOf<String, Int>()
+    val listToRemove = mutableListOf<String>()
     for (item in list) {
         if (item in resultArr) {
             val currentValue = resultArr[item]
@@ -324,10 +302,9 @@ fun extractRepeats(list: List<String>): Map<String, Int> {
             resultArr[item] = 1
         }
     }
-    for (item in resultArr) {
-        val currentValueRes = item.value
+    for ((key, currentValueRes) in resultArr) {
         if (currentValueRes == 1) {
-            listToRemove.add(item.key)
+            listToRemove.add(key)
         }
     }
     for (item in listToRemove) {
@@ -356,7 +333,7 @@ fun hasAnagrams(words: List<String>): Boolean {
         if (i == "") counter += 1
     }
     if (counter > 1) return true
-    val helperArr: MutableList<List<Int>> = mutableListOf()
+    val helperArr = mutableListOf<List<Int>>()
     for (i in words.indices) {
         val currentValue = words[i]
         if (currentValue != "") {
@@ -403,34 +380,30 @@ fun hasAnagrams(words: List<String>): Boolean {
  *        )
  */
 fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> {
-    val resultMap: MutableMap<String, MutableSet<String>> = mutableMapOf()
-    val toCountEmpty: MutableSet<String> = mutableSetOf()
-    for (k in 0..friends.size - 1) {
+    val resultArr = mutableMapOf<String, Set<String>>()
+    for (item in friends) {
+        for (itemvalue in item.value) {
+            resultArr[itemvalue] = mutableSetOf()
+        }
+    }
+    for ((key, value) in friends) {
+        resultArr[key] = value.toMutableSet()
+    }
+    for (i in 0..(ceil(log2(friends.size.toDouble())) + 1).toInt()) {
         for (item in friends) {
-            resultMap[item.key] = item.value.toMutableSet()
-            toCountEmpty.add(item.key)
-            if (item.value != setOf("")) {
-                toCountEmpty.addAll(item.value)
-            }
-            val currentValue = resultMap[item.key]
-            var modifier: MutableList<String> = mutableListOf()
-            if ((currentValue != null && (currentValue != mutableListOf("")))) {
-                for (i in currentValue) {
-                    val helper = friends[i]
-                    if (helper != null) {
-                        modifier = (helper - setOf("") - item.key).toMutableList()
+            for (itemvalue in item.value) {
+                for (itemres in resultArr) {
+                    if (itemvalue == itemres.key) {
+                        val helpervalue = resultArr[item.key]
+                        if (helpervalue != null) {
+                            resultArr[item.key] = helpervalue.union(itemres.value - item.key)
+                        }
                     }
                 }
             }
-            resultMap[item.key]?.addAll(modifier)
-        }
-        for (item in toCountEmpty) {
-            if (item !in resultMap) {
-                resultMap[item] = mutableSetOf()
-            }
         }
     }
-    return resultMap.toMap()
+    return resultArr.toMap()
 }
 
 
@@ -485,8 +458,8 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
 // упаковываем в рюкзак сокровища по плотности, учитывая постепенную наполняемость. Profit!
 
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-    val resultSet: MutableSet<String> = mutableSetOf()
-    val helperArr: MutableList<Pair<Pair<String, Double>, Pair<Int, Int>>> = mutableListOf()
+    val resultSet = mutableSetOf<String>()
+    val helperArr = mutableListOf<Pair<Pair<String, Double>, Pair<Int, Int>>>()
     for (item in treasures) {
         helperArr.add(
             Pair(
@@ -496,32 +469,11 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         )
     }
     helperArr.sortByDescending { it.first.second }
-    var currentPrice: MutableMap<String, Int> = mutableMapOf()
-    for (lostName in treasures) {
-        var variableCapacity = capacity
-        for (item in helperArr) {
-            if ((item.first.first != lostName.key) && (item.second.first <= variableCapacity)) {
-                val secondhelper = currentPrice[item.first.first]
-                if (secondhelper != null) {
-                    currentPrice[item.first.first] = secondhelper + item.second.second
-                }
-                variableCapacity -= item.second.first
-            }
-        }
-    }
-    var maximum = Int.MIN_VALUE
-    var CurName = ""
-    for (item in currentPrice) {
-        if (item.value > maximum) {
-            maximum = item.value
-            CurName = item.key
-        }
-    }
-    var variableCapacity = capacity
+    var currentCapacity = capacity
     for (item in helperArr) {
-        if ((item.first.first != CurName) && (item.second.first <= variableCapacity)) {
+        if (item.second.first <= currentCapacity) {
+            currentCapacity -= item.second.first
             resultSet.add(item.first.first)
-            variableCapacity -= item.second.first
         }
     }
     return resultSet

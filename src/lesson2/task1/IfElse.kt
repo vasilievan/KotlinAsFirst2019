@@ -66,7 +66,7 @@ fun minBiRoot(a: Double, b: Double, c: Double): Double {
  * вернуть строку вида: «21 год», «32 года», «12 лет».
  */
 fun ageDescription(age: Int): String =
-    if (((age % 10 == 0) || (age % 10 == 5) || (age % 10 == 6) || (age % 10 == 7) || (age % 10 == 8) || (age % 10 == 9)) || ((age > 109) && (age < 121)) || ((age > 9) && (age < 21))) "$age лет"
+    if ((age % 10 == 0) || (age % 10 in 5..9) || (age in 110..120) || (age in 10..20)) "$age лет"
     else if (age % 10 == 1) "$age год"
     else "$age года"
 
@@ -140,7 +140,7 @@ fun rookOrBishopThreatens(
 
 // через теорему косинусов
 fun triangleKind(a: Double, b: Double, c: Double): Int {
-    val maximum: Double = max(max(a, b), max(b, c))
+    val maximum = maxOf(a, b, c)
     var cosinus = 0.0
     when {
         a == maximum -> cosinus = (a.pow(2) - b.pow(2) - c.pow(2)) / (-2 * b * c)
@@ -164,7 +164,7 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
 
 // возможны четыре варианта пересечения, рассмотрим все
 fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int = if ((a <= c) && (a <= d) && (c <= b) && (d <= b)) (d - c)
-else if ((c <= a) && (c <= b) && (a <= d) && (b <= d)) (b - a)
-else if ((a <= c) && (a <= d) && (c <= b) && (b <= d)) (b - c)
-else if ((c <= a) && (c <= b) && (a <= d) && (d <= b)) (d - a)
-else -1
+    else if ((c <= a) && (c <= b) && (a <= d) && (b <= d)) (b - a)
+    else if ((a <= c) && (a <= d) && (c <= b) && (b <= d)) (b - c)
+    else if ((c <= a) && (c <= b) && (a <= d) && (d <= b)) (d - a)
+    else -1

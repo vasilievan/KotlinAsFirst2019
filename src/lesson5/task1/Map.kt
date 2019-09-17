@@ -2,12 +2,10 @@
 
 package lesson5.task1
 
-import kotlin.math.ceil
-import kotlin.math.log2
-import kotlin.math.max
-import kotlin.math.min
-import org.paukov.combinatorics.CombinatoricsFactory.createSimpleCombinationGenerator
-import org.paukov.combinatorics.CombinatoricsFactory.createVector
+import javax.swing.text.html.HTML.Attribute.N
+import java.lang.Integer
+import kotlin.math.*
+
 
 /**
  * Пример
@@ -443,7 +441,7 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
 
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
 
-    val allPossibleCombinations = mutableListOf<MutableList<String>>()
+    var allPossibleCombinations = mutableListOf<MutableList<String>>()
     val arrayForLimits = mutableListOf<Int>()
 
     for ((key, value) in treasures) {
@@ -473,13 +471,26 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         }
     }
 
-    val vector = createVector(treasures.keys)
-    for (amount in down..up) {
-        val gen = createSimpleCombinationGenerator<String>(vector, amount)
-        for (combination in gen) {
-            allPossibleCombinations.add(combination.vector)
+    fun combinations(list: List<String>, down: Int, up: Int): MutableList<MutableList<String>> {
+        val resultFun = mutableListOf<MutableList<String>>()
+        for (i in 1 until 2.0.pow(list.size).toInt()) {
+            val tempList = mutableListOf<String>()
+            var binaryi = i.toString(2)
+            binaryi = "0".repeat(list.size - binaryi.length) + binaryi
+            val counter = binaryi.filter { it != '0' }.length
+            if ((counter >= down) && (counter <= up)) {
+                for (item in binaryi.indices) {
+                    if (binaryi[item] == '1') {
+                        tempList.add(list[item])
+                    }
+                }
+                resultFun.add(tempList)
+            }
         }
+        return resultFun
     }
+
+    allPossibleCombinations = combinations(treasures.keys.toList(), down, up)
 
     var resultArray = setOf<String>()
     var maxPrice = 0

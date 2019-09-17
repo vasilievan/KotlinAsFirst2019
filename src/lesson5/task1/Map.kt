@@ -6,6 +6,8 @@ import kotlin.math.ceil
 import kotlin.math.log2
 import kotlin.math.max
 import kotlin.math.min
+import org.paukov.combinatorics.CombinatoricsFactory.createSimpleCombinationGenerator
+import org.paukov.combinatorics.CombinatoricsFactory.createVector
 
 /**
  * Пример
@@ -122,7 +124,7 @@ fun buildGrades(grades: Map<String, Int>): Map<Int, List<String>> {
  *   containsIn(mapOf("a" to "z"), mapOf("a" to "z", "b" to "sweet")) -> true
  *   containsIn(mapOf("a" to "z"), mapOf("a" to "zee", "b" to "sweet")) -> false
  */
-fun containsIn(a: Map<String, String>, b: Map<String, String>): Boolean = (a.keys).all { a[it] == b[it] }
+fun containsIn(a: Map<String, String>, b: Map<String, String>): Boolean = a.all { (key, value) -> b[key] == value }
 
 /**
  * Простая
@@ -174,21 +176,15 @@ fun whoAreInBoth(a: List<String>, b: List<String>): List<String> = (a.toSet().in
  */
 fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<String, String> {
     val resultMap = mutableMapOf<String, String>()
-    val setWithPhones = mutableMapOf<String, MutableSet<String>>()
-    for ((key, value) in mapA) {
-        resultMap[key] = value
-        setWithPhones[key] = mutableSetOf(value)
-    }
+    resultMap.putAll(mapA)
     for ((key, value) in mapB) {
         if (key in resultMap) {
             val currentValue = resultMap[key]
-            val toCheckIfEquals = setWithPhones[key]
-            if ((currentValue != null) && (toCheckIfEquals != null)) {
-                if ((value !in toCheckIfEquals) || ((value == "") && (currentValue != ""))) {
+            if (currentValue != null) {
+                if ((value !in currentValue) || ((value == "") && (currentValue != ""))) {
                     resultMap[key] = "$currentValue, $value"
                 }
             }
-
         } else {
             resultMap[key] = value
         }
@@ -244,9 +240,8 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
 // воспользуемся стандартным поиском наименьшего
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? {
     var nameWeAreLookingFor: String? = null
-    var minimumCost: Double = Double.MAX_VALUE
+    var minimumCost = Double.POSITIVE_INFINITY
     for ((key, value) in stuff) {
-        if ((stuff.size == 1) && (value.second == Double.MAX_VALUE)) nameWeAreLookingFor = value.first
         if ((value.first == kind) && (value.second < minimumCost)) {
             nameWeAreLookingFor = key
             minimumCost = value.second
@@ -291,7 +286,6 @@ fun canBuildFrom(chars: List<Char>, word: String): Boolean {
 
 fun extractRepeats(list: List<String>): Map<String, Int> {
     val resultArr = mutableMapOf<String, Int>()
-    val listToRemove = mutableListOf<String>()
     for (item in list) {
         if (item in resultArr) {
             val currentValue = resultArr[item]
@@ -302,15 +296,7 @@ fun extractRepeats(list: List<String>): Map<String, Int> {
             resultArr[item] = 1
         }
     }
-    for ((key, currentValueRes) in resultArr) {
-        if (currentValueRes == 1) {
-            listToRemove.add(key)
-        }
-    }
-    for (item in listToRemove) {
-        resultArr.remove(item)
-    }
-    return resultArr.toMap()
+    return resultArr.filter { it.value != 1 }.toMap()
 }
 
 /**
@@ -454,27 +440,65 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  *     450
  *   ) -> emptySet()
  */
-// сортируем сокровища по "плотности", исхищряясь с типами через неоднократную вложенность Pair
-// упаковываем в рюкзак сокровища по плотности, учитывая постепенную наполняемость. Profit!
 
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-    val resultSet = mutableSetOf<String>()
-    val helperArr = mutableListOf<Pair<Pair<String, Double>, Pair<Int, Int>>>()
-    for (item in treasures) {
-        helperArr.add(
-            Pair(
-                Pair(item.key, item.value.second.toDouble() / item.value.first.toDouble()),
-                Pair(item.value.first, item.value.second)
-            )
-        )
+
+    val allPossibleCombinations = mutableListOf<MutableList<String>>()
+    val arrayForLimits = mutableListOf<Int>()
+
+    for ((key, value) in treasures) {
+        arrayForLimits.add(value.first)
     }
-    helperArr.sortByDescending { it.first.second }
-    var currentCapacity = capacity
-    for (item in helperArr) {
-        if (item.second.first <= currentCapacity) {
-            currentCapacity -= item.second.first
-            resultSet.add(item.first.first)
+
+    arrayForLimits.sortByDescending { it }
+    var down = 0
+    var varcapacity = capacity
+
+    for (item in arrayForLimits) {
+        if (varcapacity > item) {
+            varcapacity -= item
+            down++
         }
     }
-    return resultSet
+
+    arrayForLimits.sortBy { it }
+    var up = 0
+    varcapacity = capacity
+
+
+    for (item in arrayForLimits) {
+        if (varcapacity > item) {
+            varcapacity -= item
+            up++
+        }
+    }
+
+    val vector = createVector(treasures.keys)
+    for (amount in down..up) {
+        val gen = createSimpleCombinationGenerator<String>(vector, amount)
+        for (combination in gen) {
+            allPossibleCombinations.add(combination.vector)
+        }
+    }
+
+    var resultArray = setOf<String>()
+    var maxPrice = 0
+
+    for (item in allPossibleCombinations) {
+        var weight = 0
+        var price = 0
+        for (insideOfList in item) {
+            weight += treasures[insideOfList]?.first!!
+            price += treasures[insideOfList]?.second!!
+            if (weight > capacity) {
+                price = 0
+                break
+            }
+        }
+        if (price > maxPrice) {
+            maxPrice = price
+            resultArray = item.toSet()
+        }
+    }
+    return resultArray
 }

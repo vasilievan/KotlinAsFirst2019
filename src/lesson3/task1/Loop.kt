@@ -88,7 +88,7 @@ fun digitNumber(n: Int): Int {
 fun fib(n: Int): Int {
     var firstNum = 1
     var secondNum = 1
-    var thirdNum: Int = firstNum + secondNum
+    var thirdNum = firstNum + secondNum
     for (i in 1..n - 3) {
         firstNum = secondNum
         secondNum = thirdNum
@@ -106,7 +106,7 @@ fun fib(n: Int): Int {
  */
 
 // НОД по Евклиду
-fun greatestcommondivision(m: Int, n: Int): Int {
+fun greatestCommonDivision(m: Int, n: Int): Int {
     var variablem = m
     var variablen = n
     while (true) {
@@ -120,7 +120,7 @@ fun greatestcommondivision(m: Int, n: Int): Int {
 
 // НОК и НОД связаны отношением: a*b/НОД = НОК. Сначала найдем НОД по
 // алгоритму Евклида (выше), а затем найдем НОК.
-fun lcm(m: Int, n: Int): Int = m * n / greatestcommondivision(m, n)
+fun lcm(m: Int, n: Int): Int = m * n / greatestCommonDivision(m, n)
 
 /**
  * Простая
@@ -150,7 +150,7 @@ fun maxDivisor(n: Int): Int = n / minDivisor(n)
  */
 
 // если числа взаимно простые, то их НОД == 1. Задача сводится к поиску НОД.
-fun isCoPrime(m: Int, n: Int): Boolean = greatestcommondivision(m, n) == 1
+fun isCoPrime(m: Int, n: Int): Boolean = greatestCommonDivision(m, n) == 1
 
 /**
  * Простая
@@ -160,9 +160,6 @@ fun isCoPrime(m: Int, n: Int): Boolean = greatestcommondivision(m, n) == 1
  * Например, для интервала 21..28 21 <= 5*5 <= 28, а для интервала 51..61 квадрата не существует.
  */
 
-// по аналогии с примером выше. Если квадратный корень из числа (Double) равен квадратному корню, косвенно
-// приведенному к Int (из-за ограничений Kotlin нельзя сравнивать Int и Double), поэтому использовал двойное приведение
-// то существует хотя бы один точный кадрат. Иначе - нет.
 fun squareBetweenExists(m: Int, n: Int): Boolean {
     for (i in m..n) {
         if (floor(sqrt(i.toDouble())) == ceil(sqrt(i.toDouble()))) {
@@ -213,15 +210,8 @@ fun collatzSteps(x: Int): Int {
 // приведем аргумент синуса к промежутку [0, PI * 2]
 fun sin(x: Double, eps: Double): Double {
     var meaning = 0.0
-    var variablex = x
+    val variablex = x % (2 * PI)
     var term: Double
-    if (x > 0) {
-        variablex %= 2 * PI
-    } else {
-        while (variablex < 0) {
-            variablex += 2 * PI
-        }
-    }
     var currentNum = 1
     do {
         term = (-1.0).pow(currentNum + 1) * variablex.pow(2 * currentNum - 1) / factorial(2 * currentNum - 1)
@@ -242,15 +232,8 @@ fun sin(x: Double, eps: Double): Double {
  */
 fun cos(x: Double, eps: Double): Double {
     var meaning = 0.0
-    var variablex = x
+    val variablex = x % (PI * 2)
     var term: Double
-    if (x > 0) {
-        variablex %= 2 * PI
-    } else {
-        while (variablex < 0) {
-            variablex += 2 * PI
-        }
-    }
     var currentNum = 0
     do {
         term = (-1.0).pow(currentNum) * variablex.pow(2 * currentNum) / factorial(2 * currentNum)
@@ -335,7 +318,7 @@ fun squareSequenceDigit(n: Int): Int {
     var currentNum = 0
     while (currentPosition < n) {
         currentNum = increment * increment
-        currentPosition += digitNumber(increment * increment)
+        currentPosition += digitNumber(currentNum)
         increment++
     }
     return if (currentPosition == n) {
@@ -364,7 +347,7 @@ fun fibSequenceDigit(n: Int): Int {
     var currentNum = 0
     while (currentPosition < n) {
         currentNum = fib(increment)
-        currentPosition += digitNumber(fib(increment))
+        currentPosition += digitNumber(currentNum)
         increment++
     }
     return if (currentPosition == n) {

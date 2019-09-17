@@ -93,7 +93,7 @@ fun circleInside(
 // меньше или равна по длине наибольшей из граней отверстия и наименьшая из этих двух граней меньше или равна
 // наименьшей из граней отверстия, то кирпич пройдет
 fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean {
-    val minimum = min(min(a, b), min(b, c))
+    val minimum = minOf(a, b, c)
     var minimumTwo = 0
     when (minimum) {
         a -> minimumTwo = min(b, c)

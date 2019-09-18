@@ -321,7 +321,7 @@ fun hasAnagrams(words: List<String>): Boolean {
     for (i in words.indices) {
         val currentValue = words[i]
         if (currentValue != "") {
-            helperArr.add(currentValue.toCharArray().map { it.toInt() }.sorted())
+            helperArr.add(currentValue.map { it.toInt() }.sorted())
         } else {
             helperArr.add(listOf(-78557759))
         }
@@ -374,20 +374,20 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
         resultArr[key] = value.toMutableSet()
     }
     for (i in 0..(ceil(log2(friends.size.toDouble())) + 1).toInt()) {
-        for (item in friends) {
-            for (itemvalue in item.value) {
-                for (itemres in resultArr) {
-                    if (itemvalue == itemres.key) {
-                        val helpervalue = resultArr[item.key]
+        for ((key, value) in friends) {
+            for (itemvalue in value) {
+                for ((key1, value1) in resultArr) {
+                    if (itemvalue == key1) {
+                        val helpervalue = resultArr[key]
                         if (helpervalue != null) {
-                            resultArr[item.key] = helpervalue.union(itemres.value - item.key)
+                            resultArr[key] = helpervalue.union(value1 - key)
                         }
                     }
                 }
             }
         }
     }
-    return resultArr.toMap()
+    return resultArr
 }
 
 
@@ -441,7 +441,9 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
 
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
 
-    var allPossibleCombinations = mutableListOf<MutableList<String>>()
+    if (treasures.size == 1) {
+        return treasures.keys
+    }
     val arrayForLimits = mutableListOf<Int>()
 
     for ((key, value) in treasures) {
@@ -490,8 +492,7 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         return resultFun
     }
 
-    allPossibleCombinations = combinations(treasures.keys.toList(), down, up)
-
+    val allPossibleCombinations = combinations(treasures.keys.toList(), down, up)
     var resultArray = setOf<String>()
     var maxPrice = 0
 

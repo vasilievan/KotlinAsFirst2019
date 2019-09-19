@@ -446,34 +446,46 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  */
 
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-    if (treasures.size == 1) {
-        return treasures.keys
-    }
     val arrayForLimits = mutableListOf<Int>()
-    val testingList = mutableSetOf<String>()
     var varcapacity = capacity
+    val helperArr: MutableList<Pair<Pair<String, Double>, Pair<Int, Int>>> = mutableListOf()
+
+    for (item in treasures) {
+        helperArr.add(
+            Pair(
+                Pair(item.key, item.value.second.toDouble() / item.value.first.toDouble()),
+                Pair(item.value.first, item.value.second)
+            )
+        )
+    }
+    helperArr.sortByDescending { it.first.second }
+    val currentPrice = mutableSetOf<String>()
+    var variableCapacity = capacity
+    for (item in helperArr) {
+        if (item.second.first <= variableCapacity) {
+            currentPrice.add(item.first.first)
+            variableCapacity -= item.second.first
+        }
+    }
+    if (variableCapacity == 0) {
+        return currentPrice
+    }
 
     for ((key, value) in treasures) {
         arrayForLimits.add(value.first)
         if (value.first <= capacity) {
             varcapacity -= value.first
-            testingList.add(key)
         }
     }
 
     arrayForLimits.sortByDescending { it }
     var down = 0
-    varcapacity = capacity
 
     for (item in arrayForLimits) {
         if (varcapacity >= item) {
             varcapacity -= item
             down++
         }
-    }
-
-    if (treasures.size > 12) {
-        return testingList
     }
 
     arrayForLimits.sortBy { it }

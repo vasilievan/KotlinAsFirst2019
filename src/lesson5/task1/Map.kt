@@ -460,7 +460,7 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     var varcapacity = capacity
 
     for (item in arrayForLimits) {
-        if (varcapacity > item) {
+        if (varcapacity >= item) {
             varcapacity -= item
             down++
         }
@@ -472,7 +472,7 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
 
 
     for (item in arrayForLimits) {
-        if (varcapacity > item) {
+        if (varcapacity >= item) {
             varcapacity -= item
             up++
         }

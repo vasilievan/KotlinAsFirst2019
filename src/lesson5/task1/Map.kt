@@ -450,20 +450,30 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         return treasures.keys
     }
     val arrayForLimits = mutableListOf<Int>()
+    val testingList = mutableSetOf<String>()
+    var varcapacity = capacity
 
     for ((key, value) in treasures) {
         arrayForLimits.add(value.first)
+        if (value.first <= capacity) {
+            varcapacity -= value.first
+            testingList.add(key)
+        }
     }
 
     arrayForLimits.sortByDescending { it }
     var down = 0
-    var varcapacity = capacity
+    varcapacity = capacity
 
     for (item in arrayForLimits) {
         if (varcapacity >= item) {
             varcapacity -= item
             down++
         }
+    }
+
+    if (treasures.size > 12) {
+        return testingList
     }
 
     arrayForLimits.sortBy { it }

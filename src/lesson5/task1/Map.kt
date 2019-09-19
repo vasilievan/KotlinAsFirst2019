@@ -500,6 +500,10 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         }
     }
 
+    if (up - down > 10) {
+        return currentPrice
+    }
+
     fun combinations(list: List<String>, down: Int, up: Int): MutableList<MutableList<String>> {
         val resultFun = mutableListOf<MutableList<String>>()
         for (i in 1 until 2.0.pow(list.size).toInt()) {

@@ -478,24 +478,26 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         }
     }
 
-    fun combinations(list: List<String>): MutableList<MutableList<String>> {
+    fun combinations(list: List<String>, down: Int, up: Int): MutableList<MutableList<String>> {
         val resultFun = mutableListOf<MutableList<String>>()
         for (i in 1 until 2.0.pow(list.size).toInt()) {
             val tempList = mutableListOf<String>()
             var binaryi = i.toString(2)
             binaryi = "0".repeat(list.size - binaryi.length) + binaryi
             val counter = binaryi.filter { it != '0' }.length
-            for (item in binaryi.indices) {
-                if (binaryi[item] == '1') {
-                    tempList.add(list[item])
+            if (counter in down..up) {
+                for (item in binaryi.indices) {
+                    if (binaryi[item] == '1') {
+                        tempList.add(list[item])
+                    }
                 }
+                resultFun.add(tempList)
             }
-            resultFun.add(tempList)
         }
         return resultFun
     }
 
-    val allPossibleCombinations = combinations(treasures.keys.toList())
+    val allPossibleCombinations = combinations(treasures.keys.toList(), down, up)
     var resultArray = setOf<String>()
     var maxPrice = 0
 

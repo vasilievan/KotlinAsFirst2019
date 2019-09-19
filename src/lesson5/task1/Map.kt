@@ -173,21 +173,27 @@ fun whoAreInBoth(a: List<String>, b: List<String>): List<String> = (a.toSet().in
  *   ) -> mapOf("Emergency" to "112, 911", "Police" to "02")
  */
 fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<String, String> {
-    val resultMap = mutableMapOf<String, String>()
-    resultMap.putAll(mapA)
+    val resultMap = mutableMapOf<String, MutableSet<String>>()
+    for ((key, value) in mapA) {
+        resultMap[key] = mutableSetOf(value)
+    }
     for ((key, value) in mapB) {
         if (key in resultMap) {
             val currentValue = resultMap[key]
             if (currentValue != null) {
-                if ((value !in currentValue) || ((value == "") && (currentValue != ""))) {
-                    resultMap[key] = "$currentValue, $value"
+                if (value !in currentValue) {
+                    resultMap[key]?.add(value)
                 }
             }
         } else {
-            resultMap[key] = value
+            resultMap[key] = mutableSetOf(value)
         }
     }
-    return resultMap.toMap()
+    val last = mutableMapOf<String, String>()
+    for ((key, value) in resultMap) {
+        last[key] = value.toString().removeSuffix("]").removePrefix("[")
+    }
+    return last
 }
 
 /**
@@ -330,7 +336,7 @@ fun hasAnagrams(words: List<String>): Boolean {
     if (helperArr.isEmpty() || (helperArr.size == 1)) return false
     for (item in 0..helperArr.size - 2) {
         val q = item + 1
-        for (itemTwo in q..helperArr.size - 1) {
+        for (itemTwo in q until helperArr.size) {
             if (helperArr[item] == helperArr[itemTwo]) {
                 return true
             }
@@ -440,7 +446,6 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  */
 
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-
     if (treasures.size == 1) {
         return treasures.keys
     }
@@ -473,26 +478,24 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         }
     }
 
-    fun combinations(list: List<String>, down: Int, up: Int): MutableList<MutableList<String>> {
+    fun combinations(list: List<String>): MutableList<MutableList<String>> {
         val resultFun = mutableListOf<MutableList<String>>()
         for (i in 1 until 2.0.pow(list.size).toInt()) {
             val tempList = mutableListOf<String>()
             var binaryi = i.toString(2)
             binaryi = "0".repeat(list.size - binaryi.length) + binaryi
             val counter = binaryi.filter { it != '0' }.length
-            if ((counter >= down) && (counter <= up)) {
-                for (item in binaryi.indices) {
-                    if (binaryi[item] == '1') {
-                        tempList.add(list[item])
-                    }
+            for (item in binaryi.indices) {
+                if (binaryi[item] == '1') {
+                    tempList.add(list[item])
                 }
-                resultFun.add(tempList)
             }
+            resultFun.add(tempList)
         }
         return resultFun
     }
 
-    val allPossibleCombinations = combinations(treasures.keys.toList(), down, up)
+    val allPossibleCombinations = combinations(treasures.keys.toList())
     var resultArray = setOf<String>()
     var maxPrice = 0
 

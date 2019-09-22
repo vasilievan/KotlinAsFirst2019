@@ -446,6 +446,9 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  */
 
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
+
+    if (treasures.isEmpty()) return setOf()
+
     val arrayForLimits = mutableListOf<Int>()
     var varcapacity = capacity
     val helperArr: MutableList<Pair<Pair<String, Double>, Pair<Int, Int>>> = mutableListOf()

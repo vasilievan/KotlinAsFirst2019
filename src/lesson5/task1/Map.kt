@@ -451,6 +451,33 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
 
     val arrayForLimits = mutableListOf<Int>()
     var varcapacity = capacity
+    val helperArr: MutableList<Pair<Pair<String, Double>, Pair<Int, Int>>> = mutableListOf()
+
+    // if arr is full
+    for ((key, value) in treasures) {
+        helperArr.add(
+            Pair(
+                Pair(key, value.second.toDouble() / value.first.toDouble()),
+                Pair(value.first, value.second)
+            )
+        )
+    }
+    helperArr.sortByDescending { it.first.second }
+
+    val currentPrice = mutableSetOf<String>()
+
+    var variableCapacity = capacity
+
+    for (index in 0 until helperArr.size) {
+        if (variableCapacity - helperArr[index].second.first >= 0) {
+            variableCapacity -= helperArr[index].second.first
+            currentPrice.add(helperArr[index].first.first)
+        }
+    }
+
+    if (variableCapacity == 0) {
+        return currentPrice
+    }
 
     // down and up
     for ((key, value) in treasures) {

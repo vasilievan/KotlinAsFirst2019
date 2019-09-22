@@ -450,27 +450,29 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     var varcapacity = capacity
     val helperArr: MutableList<Pair<Pair<String, Double>, Pair<Int, Int>>> = mutableListOf()
 
-    for (item in treasures) {
+    // if arr is full
+    for ((key, value) in treasures) {
         helperArr.add(
             Pair(
-                Pair(item.key, item.value.second.toDouble() / item.value.first.toDouble()),
-                Pair(item.value.first, item.value.second)
+                Pair(key, value.second.toDouble() / value.first.toDouble()),
+                Pair(value.first, value.second)
             )
         )
     }
     helperArr.sortByDescending { it.first.second }
     val currentPrice = mutableSetOf<String>()
     var variableCapacity = capacity
-    for (item in helperArr) {
-        if (item.second.first <= variableCapacity) {
-            currentPrice.add(item.first.first)
-            variableCapacity -= item.second.first
+    for ((first, second) in helperArr) {
+        if (second.first <= variableCapacity) {
+            currentPrice.add(first.first)
+            variableCapacity -= second.first
         }
     }
     if (variableCapacity == 0) {
         return currentPrice
     }
 
+    // down and up
     for ((key, value) in treasures) {
         arrayForLimits.add(value.first)
         if (value.first <= capacity) {
@@ -500,47 +502,56 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         }
     }
 
-    if (up - down > 10) {
-        return currentPrice
-    }
+    // comb
+    fun combinations(capacity: Int, price: List<Int>, weight: List<Int>, down: Int, up: Int): String {
+        var previousPlan = "0".repeat(price.size)
+        var previousWeight = 0
+        var previousPrice = 0
+        var currentPlan = ""
+        var currentWeight = 0
+        var currentPrice = 0
 
-    fun combinations(list: List<String>, down: Int, up: Int): MutableList<MutableList<String>> {
-        val resultFun = mutableListOf<MutableList<String>>()
-        for (i in 1 until 2.0.pow(list.size).toInt()) {
-            val tempList = mutableListOf<String>()
-            var binaryi = i.toString(2)
-            binaryi = "0".repeat(list.size - binaryi.length) + binaryi
-            val counter = binaryi.filter { it != '0' }.length
-            if (counter in down..up) {
-                for (item in binaryi.indices) {
-                    if (binaryi[item] == '1') {
-                        tempList.add(list[item])
+        for (i in down until 2.0.pow(price.size).toInt()) {
+            currentPlan = i.toString(2)
+            currentPlan = "0".repeat(price.size - currentPlan.length) + currentPlan
+            val counter = currentPlan.filter { it != '0' }.length
+            if (counter <= up) {
+                currentWeight = previousWeight
+                currentPrice = previousPrice
+                for (item in currentPlan.indices) {
+                    if ((currentPlan[item] == '0') && (previousPlan[item] == '1')) {
+                        currentWeight -= weight[item]
+                        currentPrice -= price[item]
+                    } else if ((currentPlan[item] == '1') && (previousPlan[item] == '0')) {
+                        currentWeight += weight[item]
+                        currentPrice += price[item]
                     }
                 }
-                resultFun.add(tempList)
+                if ((currentWeight <= capacity) && (currentPrice > previousPrice)) {
+                    previousPlan = currentPlan
+                    previousPrice = currentPrice
+                    previousWeight = currentWeight
+                }
             }
         }
-        return resultFun
+        return previousPlan
     }
 
-    val allPossibleCombinations = combinations(treasures.keys.toList(), down, up)
-    var resultArray = setOf<String>()
-    var maxPrice = 0
+    val namesOfTreasures = mutableListOf<String>()
+    val pricesOfTreasures = mutableListOf<Int>()
+    val weightsOfTreasures = mutableListOf<Int>()
 
-    for (item in allPossibleCombinations) {
-        var weight = 0
-        var price = 0
-        for (insideOfList in item) {
-            weight += treasures[insideOfList]?.first!!
-            price += treasures[insideOfList]?.second!!
-            if (weight > capacity) {
-                price = 0
-                break
-            }
-        }
-        if (price > maxPrice) {
-            maxPrice = price
-            resultArray = item.toSet()
+    for ((key, value) in treasures) {
+        namesOfTreasures.add(key)
+        weightsOfTreasures.add(value.first)
+        pricesOfTreasures.add(value.second)
+    }
+
+    val allPossibleCombinations = combinations(capacity, pricesOfTreasures, weightsOfTreasures, down, up)
+    val resultArray = mutableSetOf<String>()
+    for (item in allPossibleCombinations.indices) {
+        if (allPossibleCombinations[item] == '1') {
+            resultArray.add(namesOfTreasures[item])
         }
     }
     return resultArray

@@ -459,6 +459,8 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         names.add(key)
     }
 
+    var indicator = true
+
     for (i in 1..mapSize) {
         for (w in 1..capacity) {
             if (weights[i - 1] < w) {
@@ -466,7 +468,8 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
                 if (resultArray[w][i] == resultArray[w - weights[i - 1]][i - 1] + costs[i - 1]) {
                     answer.add(names[i - 1])
                 }
-            } else if ((weights[i - 1] == w) && (i == 1)) {
+            } else if ((weights[i - 1] == w) && indicator) {
+                indicator = false
                 resultArray[w][i] = maxOf(resultArray[w][i - 1], resultArray[w - weights[i - 1]][i - 1] + costs[i - 1])
                 if (resultArray[w][i] == resultArray[w - weights[i - 1]][i - 1] + costs[i - 1]) {
                     answer.add(names[i - 1])

@@ -191,7 +191,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
     }
     val last = mutableMapOf<String, String>()
     for ((key, value) in resultMap) {
-        last[key] = value.toString().removeSuffix("]").removePrefix("[")
+        last[key] = value.joinToString { it }
     }
     return last
 }
@@ -446,120 +446,33 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  */
 
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
+    val mapSize = treasures.size
+    val resultArray: Array<Array<Int>> = Array(capacity + 1) { Array(mapSize + 1) { 0 } }
+    val weights = mutableListOf<Int>()
+    val costs = mutableListOf<Int>()
+    val names = mutableListOf<String>()
+    val answer = mutableSetOf<String>()
 
-    if (treasures.isEmpty()) return setOf()
-
-    val arrayForLimits = mutableListOf<Int>()
-    var varcapacity = capacity
-    val helperArr: MutableList<Pair<Pair<String, Double>, Pair<Int, Int>>> = mutableListOf()
-
-    // if arr is full
     for ((key, value) in treasures) {
-        helperArr.add(
-            Pair(
-                Pair(key, value.second.toDouble() / value.first.toDouble()),
-                Pair(value.first, value.second)
-            )
-        )
-    }
-    helperArr.sortByDescending { it.first.second }
-
-    val currentPrice = mutableSetOf<String>()
-
-    var variableCapacity = capacity
-
-    for (index in 0 until helperArr.size) {
-        if (variableCapacity - helperArr[index].second.first >= 0) {
-            variableCapacity -= helperArr[index].second.first
-            currentPrice.add(helperArr[index].first.first)
-        }
+        weights.add(value.first)
+        costs.add(value.first)
+        names.add(key)
     }
 
-    if (variableCapacity == 0) {
-        return currentPrice
-    }
-
-    // down and up
-    for ((key, value) in treasures) {
-        arrayForLimits.add(value.first)
-        if (value.first <= capacity) {
-            varcapacity -= value.first
-        }
-    }
-
-    arrayForLimits.sortByDescending { it }
-    var down = 0
-
-    for (item in arrayForLimits) {
-        if (varcapacity >= item) {
-            varcapacity -= item
-            down++
-        }
-    }
-
-    arrayForLimits.sortBy { it }
-    var up = 0
-    varcapacity = capacity
-
-
-    for (item in arrayForLimits) {
-        if (varcapacity >= item) {
-            varcapacity -= item
-            up++
-        }
-    }
-
-    // comb
-    fun combinations(capacity: Int, price: List<Int>, weight: List<Int>, down: Int, up: Int): String {
-        var previousPlan = "0".repeat(price.size)
-        var previousWeight = 0
-        var previousPrice = 0
-        var currentPlan = ""
-        var currentWeight = 0
-        var currentPrice = 0
-
-        for (i in down until 2.0.pow(price.size).toInt()) {
-            currentPlan = i.toString(2)
-            currentPlan = "0".repeat(price.size - currentPlan.length) + currentPlan
-            val counter = currentPlan.filter { it != '0' }.length
-            if (counter <= up) {
-                currentWeight = previousWeight
-                currentPrice = previousPrice
-                for (item in currentPlan.indices) {
-                    if ((currentPlan[item] == '0') && (previousPlan[item] == '1')) {
-                        currentWeight -= weight[item]
-                        currentPrice -= price[item]
-                    } else if ((currentPlan[item] == '1') && (previousPlan[item] == '0')) {
-                        currentWeight += weight[item]
-                        currentPrice += price[item]
-                    }
+    for (i in 1..mapSize) {
+        for (w in 1..capacity) {
+            if (weights[i - 1] < w) {
+                resultArray[w][i] = maxOf(resultArray[w][i - 1], resultArray[w - weights[i - 1]][i - 1] + costs[i - 1])
+                if (resultArray[w][i] == resultArray[w - weights[i - 1]][i - 1] + costs[i - 1]) {
+                    answer.add(names[i - 1])
                 }
-                if ((currentWeight <= capacity) && (currentPrice > previousPrice)) {
-                    previousPlan = currentPlan
-                    previousPrice = currentPrice
-                    previousWeight = currentWeight
-                }
+            } else {
+                resultArray[w][i] = resultArray[w][i - 1]
             }
         }
-        return previousPlan
     }
 
-    val namesOfTreasures = mutableListOf<String>()
-    val pricesOfTreasures = mutableListOf<Int>()
-    val weightsOfTreasures = mutableListOf<Int>()
+    val totalCost = resultArray[capacity][mapSize]
 
-    for ((key, value) in treasures) {
-        namesOfTreasures.add(key)
-        weightsOfTreasures.add(value.first)
-        pricesOfTreasures.add(value.second)
-    }
-
-    val allPossibleCombinations = combinations(capacity, pricesOfTreasures, weightsOfTreasures, down, up)
-    val resultArray = mutableSetOf<String>()
-    for (item in allPossibleCombinations.indices) {
-        if (allPossibleCombinations[item] == '1') {
-            resultArray.add(namesOfTreasures[item])
-        }
-    }
-    return resultArray
+    return answer
 }

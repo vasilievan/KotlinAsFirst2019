@@ -453,10 +453,6 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     val names = mutableListOf<String>()
     val answer = mutableSetOf<String>()
 
-    if ((treasures.size == 1) && (treasures[treasures.keys.joinToString { it }]?.first!! <= capacity)) {
-        return setOf(treasures.keys.joinToString { it })
-    }
-
     for ((key, value) in treasures) {
         weights.add(value.first)
         costs.add(value.first)
@@ -470,13 +466,15 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
                 if (resultArray[w][i] == resultArray[w - weights[i - 1]][i - 1] + costs[i - 1]) {
                     answer.add(names[i - 1])
                 }
+            } else if ((weights[i - 1] == w) && (i == 1)) {
+                resultArray[w][i] = maxOf(resultArray[w][i - 1], resultArray[w - weights[i - 1]][i - 1] + costs[i - 1])
+                if (resultArray[w][i] == resultArray[w - weights[i - 1]][i - 1] + costs[i - 1]) {
+                    answer.add(names[i - 1])
+                }
             } else {
                 resultArray[w][i] = resultArray[w][i - 1]
             }
         }
     }
-
-    val totalCost = resultArray[capacity][mapSize]
-
     return answer
 }

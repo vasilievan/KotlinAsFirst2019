@@ -136,6 +136,9 @@ fun dateStrToDigit(str: String): String {
  * входными данными.
  */
 fun dateDigitToStr(digital: String): String {
+    if (digital == "") {
+        return ""
+    }
     val indicator = digital.contains(Regex("""^((0[1-9])|([123]\d))\.((0[1-9])|(1[012]))\.\d+$"""))
     if (indicator) {
         val numbers = Regex("""\d+""").findAll(digital)
@@ -369,6 +372,8 @@ fun mostExpensive(description: String): String {
             if (arrcosts[i] > maximum) {
                 maximum = arrcosts[i]
                 res = arrnames[i]
+            } else if ((arrcosts[i] == maximum) && (maximum == 0.0)) {
+                res = "Any good with price 0.0"
             }
         }
         return res
@@ -389,6 +394,9 @@ fun mostExpensive(description: String): String {
  * Вернуть -1, если roman не является корректным римским числом
  */
 fun fromRoman(roman: String): Int {
+    if (roman == "") {
+        return -1
+    }
     val indicator = roman.contains(Regex("""^M{0,3}((CM|CD|D)?C{0,3})((XC|XL|L)?X{0,3})((IX|IV|V)?I{0,3})$"""))
     val numbersArr = mutableListOf<Int>()
     var summaryResult = 0

@@ -69,7 +69,61 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String = TODO()
+
+fun dateStrToDigit(str: String): String {
+    val a = str.split(" ")
+    var indicator = false
+    val lean = listOf(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+    val leap = listOf(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+    val monthes = listOf(
+        "января",
+        "февраля",
+        "марта",
+        "апреля",
+        "мая",
+        "июня",
+        "июля",
+        "августа",
+        "сентября",
+        "октября",
+        "ноября",
+        "декабря"
+    )
+    val numday: Int
+    val nummonth: String
+    val numyear: Int
+    try {
+        numday = a[0].toInt()
+        nummonth = a[1]
+        numyear = a[2].toInt()
+    } catch (e: IndexOutOfBoundsException) {
+        return ""
+    }
+    if ((numyear % 400 == 0) || ((numyear % 100 != 0) && (numyear % 4 == 0))) {
+        indicator = true
+    }
+    if (indicator) {
+        return if (nummonth in monthes) {
+            if (numday <= leap[monthes.indexOf(nummonth)]) {
+                String.format("%02d.%02d.%d", numday, monthes.indexOf(nummonth) + 1, numyear)
+            } else {
+                ""
+            }
+        } else {
+            ""
+        }
+    } else {
+        return if (nummonth in monthes) {
+            if (numday <= lean[monthes.indexOf(nummonth)]) {
+                String.format("%02d.%02d.%02d", numday, monthes.indexOf(nummonth) + 1, numyear)
+            } else {
+                ""
+            }
+        } else {
+            ""
+        }
+    }
+}
 
 /**
  * Средняя
@@ -81,7 +135,54 @@ fun dateStrToDigit(str: String): String = TODO()
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-fun dateDigitToStr(digital: String): String = TODO()
+fun dateDigitToStr(digital: String): String {
+    val indicator = digital.contains(Regex("""^((0[1-9])|([123]\d))\.((0[1-9])|(1[012]))\.\d+$"""))
+    if (indicator) {
+        val numbers = Regex("""\d+""").findAll(digital)
+        val days = numbers.elementAt(0).value.toInt()
+        val monthes = numbers.elementAt(1).value.toInt()
+        val years = numbers.elementAt(2).value.toInt()
+        var leapchecker = false
+        if ((years % 400 == 0) || ((years % 100 != 0) && (years % 4 == 0))) {
+            leapchecker = true
+        }
+        val lean = listOf(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+        val leap = listOf(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+
+        val monthesnames = listOf(
+            "января",
+            "февраля",
+            "марта",
+            "апреля",
+            "мая",
+            "июня",
+            "июля",
+            "августа",
+            "сентября",
+            "октября",
+            "ноября",
+            "декабря"
+        )
+
+        val namem = monthesnames[monthes - 1]
+
+        if (leapchecker) {
+            if (days <= leap[monthes - 1]) {
+                return "$days $namem $years"
+            } else {
+                return ""
+            }
+        } else {
+            if (days <= lean[monthes - 1]) {
+                return "$days $namem $years"
+            } else {
+                return ""
+            }
+        }
+    } else {
+        return ""
+    }
+}
 
 /**
  * Средняя
@@ -97,7 +198,22 @@ fun dateDigitToStr(digital: String): String = TODO()
  *
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
-fun flattenPhoneNumber(phone: String): String = TODO()
+fun flattenPhoneNumber(phone: String): String {
+    val indicator = phone.contains(Regex("""^(\+)?(\d)+ *(\((\d)+ *-* *(\d)*\))?((\d)*-* *)*$"""))
+    return if (indicator) {
+        val a = Regex("""\d""").findAll(phone)
+        var resultStr = ""
+        if ("+" in phone) {
+            resultStr += "+"
+        }
+        for (item in a) {
+            resultStr += item.value
+        }
+        resultStr
+    } else {
+        ""
+    }
+}
 
 /**
  * Средняя
@@ -109,7 +225,25 @@ fun flattenPhoneNumber(phone: String): String = TODO()
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = TODO()
+fun bestLongJump(jumps: String): Int {
+    var indicator = jumps.contains(Regex("""((\d)+ +-?%?)+"""))
+    if (jumps.contains(Regex("""[^-% \d]"""))) {
+        indicator = false
+    }
+    return if (indicator) {
+        val found = Regex("""(\d)+""").findAll(jumps)
+        var maximum = -1
+        for (item in found) {
+            if (item.value.toInt() > maximum) {
+                maximum = item.value.toInt()
+            }
+        }
+        maximum
+    } else {
+        -1
+    }
+
+}
 
 /**
  * Сложная
@@ -122,7 +256,23 @@ fun bestLongJump(jumps: String): Int = TODO()
  * При нарушении формата входной строки, а также в случае отсутствия удачных попыток,
  * вернуть -1.
  */
-fun bestHighJump(jumps: String): Int = TODO()
+fun bestHighJump(jumps: String): Int {
+    val indicator = jumps.contains(Regex("""(\d+ [+%\-]{1,3} ?)+"""))
+    val arraywithlucky = mutableListOf<String>()
+    var maximum = -1
+    if (indicator) {
+        val found = Regex("""\d+ %?-?\++%?-?""").findAll(jumps)
+        for (item in found) {
+            arraywithlucky.add(item.value.replace(" ", "").replace("+", "").replace("%", "").replace("-", ""))
+        }
+        for (item in arraywithlucky) {
+            if (item.toInt() > maximum) {
+                maximum = item.toInt()
+            }
+        }
+    }
+    return maximum
+}
 
 /**
  * Сложная
@@ -133,7 +283,38 @@ fun bestHighJump(jumps: String): Int = TODO()
  * Вернуть значение выражения (6 для примера).
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
-fun plusMinus(expression: String): Int = TODO()
+fun plusMinus(expression: String): Int {
+    var indicator = expression.contains(Regex("""^\d+$"""))
+    if (indicator) {
+        val groups = Regex("""\d+""").findAll(expression)
+        for (item in groups) {
+            return item.value.toInt()
+        }
+    }
+    indicator = expression.contains(Regex("""^(\d+ [+\-] \d+)+$"""))
+    if (indicator) {
+        val groups = Regex("""\d+""").findAll(expression)
+        val mps = Regex("""[+\-]""").findAll(expression)
+        val array = mutableListOf<Int>()
+        for (item in groups) {
+            array.add(item.value.toInt())
+        }
+        var summary = array[0]
+        var counter = 1
+        for (item in mps) {
+            if (item.value == "+") {
+                summary += array[counter]
+                counter++
+            } else {
+                summary -= array[counter]
+                counter++
+            }
+        }
+        return summary
+    } else {
+        throw IllegalArgumentException()
+    }
+}
 
 /**
  * Сложная
@@ -144,7 +325,19 @@ fun plusMinus(expression: String): Int = TODO()
  * Вернуть индекс начала первого повторяющегося слова, или -1, если повторов нет.
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
-fun firstDuplicateIndex(str: String): Int = TODO()
+fun firstDuplicateIndex(str: String): Int {
+    var arr = str.split(" ").map { it.toLowerCase() }
+    for (item in 1 until arr.size - 1) {
+        if (arr[item - 1] == arr[item]) {
+            var summary = 0
+            for (j in 0 until item - 1) {
+                summary += arr[j].length
+            }
+            return summary + item - 1
+        }
+    }
+    return -1
+}
 
 /**
  * Сложная
@@ -157,7 +350,32 @@ fun firstDuplicateIndex(str: String): Int = TODO()
  * или пустую строку при нарушении формата строки.
  * Все цены должны быть больше либо равны нуля.
  */
-fun mostExpensive(description: String): String = TODO()
+fun mostExpensive(description: String): String {
+    val indicator = description.contains(Regex("""^([А-Я][a-я]+ (\d)+(\.)?(\d)*;? ?)+$"""))
+    if (indicator) {
+        val names = Regex("""[А-Я][a-я]+""").findAll(description)
+        val costs = Regex("""(\d)+(\.)?(\d)*""").findAll(description)
+        val arrnames = mutableListOf<String>()
+        val arrcosts = mutableListOf<Double>()
+        for (item in names) {
+            arrnames.add(item.value)
+        }
+        for (item in costs) {
+            arrcosts.add(item.value.toDouble())
+        }
+        var maximum = 0.0
+        var res = ""
+        for (i in 0 until arrcosts.size) {
+            if (arrcosts[i] > maximum) {
+                maximum = arrcosts[i]
+                res = arrnames[i]
+            }
+        }
+        return res
+    } else {
+        return ""
+    }
+}
 
 /**
  * Сложная
@@ -170,7 +388,34 @@ fun mostExpensive(description: String): String = TODO()
  *
  * Вернуть -1, если roman не является корректным римским числом
  */
-fun fromRoman(roman: String): Int = TODO()
+fun fromRoman(roman: String): Int {
+    val indicator = roman.contains(Regex("""^M{0,3}((CM|CD|D)?C{0,3})((XC|XL|L)?X{0,3})((IX|IV|V)?I{0,3})$"""))
+    val numbersArr = mutableListOf<Int>()
+    var summaryResult = 0
+    if (indicator) {
+        for (item in roman) {
+            when (item) {
+                'I' -> numbersArr.add(1)
+                'V' -> numbersArr.add(5)
+                'X' -> numbersArr.add(10)
+                'L' -> numbersArr.add(50)
+                'C' -> numbersArr.add(100)
+                'D' -> numbersArr.add(500)
+                'M' -> numbersArr.add(1000)
+            }
+        }
+        for (i in 1 until numbersArr.size) {
+            if (numbersArr[i - 1] < numbersArr[i]) {
+                summaryResult -= numbersArr[i - 1]
+            } else {
+                summaryResult += numbersArr[i - 1]
+            }
+        }
+        return summaryResult + numbersArr[numbersArr.size - 1]
+    } else {
+        return -1
+    }
+}
 
 /**
  * Очень сложная
@@ -208,4 +453,76 @@ fun fromRoman(roman: String): Int = TODO()
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()
+fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
+    var bracers = 0
+    val legalsymbols = setOf('+', '>', '<', '-', ' ')
+    for (i in commands) {
+        if (i == ']') {
+            bracers -= 1
+        } else if (i == '[') {
+            bracers += 1
+        } else if (i !in legalsymbols) {
+            throw IllegalArgumentException()
+        }
+        if (bracers < 0) {
+            throw IllegalArgumentException()
+        }
+    }
+    if (bracers != 0) {
+        throw IllegalArgumentException()
+    }
+    val array = mutableListOf<Int>()
+    for (i in 0 until cells) {
+        array.add(0)
+    }
+    var position = cells / 2
+
+    var jump = 0
+    var i = -1
+    var memposition = mutableListOf<Int>()
+    var checker = 0
+
+    while (i < commands.length - 1) {
+
+        i++
+        checker++
+        if (checker > limit) {
+            return array
+        }
+        var symbol = commands[i]
+        println("$i, $array, $position, $symbol")
+        if (jump > 0) {
+            if (symbol == '[') {
+                jump++
+            } else if (symbol == ']') {
+                jump--
+            }
+            if (jump > 0) {
+                continue
+            }
+        }
+
+        if (symbol == '>') {
+            position++
+            if (position > cells) {
+                throw IllegalArgumentException()
+            }
+        } else if (symbol == '<') {
+            position--
+        } else if (symbol == '+') {
+            array[position]++
+        } else if (symbol == '-') {
+            array[position]--
+        } else if ((symbol == '[') && (array[position] == 0)) {
+            memposition.add(i)
+            jump++
+        } else if ((symbol == '[') && (array[position] != 0)) {
+            memposition.add(i)
+        } else if ((symbol == ']') && (array[position] != 0)) {
+            i = memposition[memposition.lastIndex]
+        } else if ((symbol == ']') && (array[position] == 0)) {
+            memposition.remove(memposition.lastIndex)
+        }
+    }
+    return array
+}

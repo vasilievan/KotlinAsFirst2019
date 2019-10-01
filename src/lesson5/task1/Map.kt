@@ -448,25 +448,38 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
     val mapSize = treasures.size
     val resultArray: Array<Array<Int>> = Array(mapSize + 1) { Array(capacity + 1) { 0 } }
-    val weights = mutableListOf<Int>()
-    val names = mutableListOf<String>()
+    val weights = mutableListOf(0)
+    val costs = mutableListOf(0)
     val answer = mutableSetOf<String>()
+    val namesindecies = mutableListOf("")
     for ((key, value) in treasures) {
         weights.add(value.first)
-        names.add(key)
+        costs.add(value.second)
+        answer.add(key)
+        namesindecies.add(key)
     }
-    for (amelements in 1..mapSize) {
-        for (weightnum in 1..capacity) {
-            if (weights[amelements - 1] <= weightnum) {
-                resultArray[amelements][weightnum] = maxOf(
-                    resultArray[amelements][weightnum - 1] + weights[amelements - 1],
-                    resultArray[amelements - 1][weightnum - 1]
-                )
-                if (resultArray[amelements][weightnum] == resultArray[amelements][weightnum - 1] + weights[amelements - 1]) {
-                    answer.add(names[amelements - 1])
-                }
+    if (mapSize == 1) {
+        for ((key, value) in treasures) {
+            if (value.first <= capacity) {
+                return setOf(key)
             }
         }
     }
+    for (amelements in 1..mapSize) {
+        for (weightnum in 1..capacity) {
+            if (weights[amelements] <= weightnum) {
+                resultArray[amelements][weightnum] = maxOf(
+                    resultArray[amelements - 1][weightnum],
+                    resultArray[amelements - 1][weightnum - 1] - costs[amelements - 1] + costs[amelements]
+                )
+            }
+        }
+    }
+    for (elements in resultArray.lastIndex downTo 1) {
+        if (resultArray[elements][resultArray[0].lastIndex] <= resultArray[elements - 1][resultArray[0].lastIndex]) {
+            answer -= namesindecies[elements]
+        }
+    }
+
     return answer
 }

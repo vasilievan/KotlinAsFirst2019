@@ -329,14 +329,17 @@ fun plusMinus(expression: String): Int {
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
 fun firstDuplicateIndex(str: String): Int {
-    var arr = str.split(" ").map { it.toLowerCase() }
-    for (item in 1 until arr.size - 1) {
-        if (arr[item - 1] == arr[item]) {
-            var summary = 0
-            for (j in 0 until item - 1) {
-                summary += arr[j].length
-            }
-            return summary + item - 1
+    val words = Regex("""([А-Я]*[а-я]+)|([A-Z]*[a-z]+)""").findAll(str)
+    val indexedArr = mutableListOf<String>()
+    var currentPosition = 0
+    for (item in words) {
+        indexedArr.add(item.value.toLowerCase())
+    }
+    for (i in 1 until indexedArr.size) {
+        if (indexedArr[i - 1] == indexedArr[i]) {
+            return currentPosition
+        } else {
+            currentPosition += indexedArr[i - 1].length + 1
         }
     }
     return -1
@@ -354,9 +357,9 @@ fun firstDuplicateIndex(str: String): Int {
  * Все цены должны быть больше либо равны нуля.
  */
 fun mostExpensive(description: String): String {
-    val indicator = description.contains(Regex("""^([А-Я][a-я]+ (\d)+(\.)?(\d)*;? ?)+$"""))
+    val indicator = description.contains(Regex("""^((([А-Я]?[a-я]+)|([A-Z]?[a-z]+)) (\d)+(\.)?(\d)*;? ?)+$"""))
     if (indicator) {
-        val names = Regex("""[А-Я][a-я]+""").findAll(description)
+        val names = Regex("""([А-Я]?[a-я]+)|([A-Z]?[a-z]+)""").findAll(description)
         val costs = Regex("""(\d)+(\.)?(\d)*""").findAll(description)
         val arrnames = mutableListOf<String>()
         val arrcosts = mutableListOf<Double>()
@@ -366,14 +369,12 @@ fun mostExpensive(description: String): String {
         for (item in costs) {
             arrcosts.add(item.value.toDouble())
         }
-        var maximum = 0.0
+        var maximum = Double.NEGATIVE_INFINITY
         var res = ""
         for (i in 0 until arrcosts.size) {
             if (arrcosts[i] > maximum) {
                 maximum = arrcosts[i]
                 res = arrnames[i]
-            } else if ((arrcosts[i] == maximum) && (maximum == 0.0)) {
-                res = "Any good with price 0.0"
             }
         }
         return res
@@ -400,29 +401,28 @@ fun fromRoman(roman: String): Int {
     val indicator = roman.contains(Regex("""^M{0,3}((CM|CD|D)?C{0,3})((XC|XL|L)?X{0,3})((IX|IV|V)?I{0,3})$"""))
     val numbersArr = mutableListOf<Int>()
     var summaryResult = 0
-    if (indicator) {
-        for (item in roman) {
-            when (item) {
-                'I' -> numbersArr.add(1)
-                'V' -> numbersArr.add(5)
-                'X' -> numbersArr.add(10)
-                'L' -> numbersArr.add(50)
-                'C' -> numbersArr.add(100)
-                'D' -> numbersArr.add(500)
-                'M' -> numbersArr.add(1000)
-            }
-        }
-        for (i in 1 until numbersArr.size) {
-            if (numbersArr[i - 1] < numbersArr[i]) {
-                summaryResult -= numbersArr[i - 1]
-            } else {
-                summaryResult += numbersArr[i - 1]
-            }
-        }
-        return summaryResult + numbersArr[numbersArr.size - 1]
-    } else {
+    if (!indicator) {
         return -1
     }
+    for (item in roman) {
+        when (item) {
+            'I' -> numbersArr.add(1)
+            'V' -> numbersArr.add(5)
+            'X' -> numbersArr.add(10)
+            'L' -> numbersArr.add(50)
+            'C' -> numbersArr.add(100)
+            'D' -> numbersArr.add(500)
+            'M' -> numbersArr.add(1000)
+        }
+    }
+    for (i in 1 until numbersArr.size) {
+        if (numbersArr[i - 1] < numbersArr[i]) {
+            summaryResult -= numbersArr[i - 1]
+        } else {
+            summaryResult += numbersArr[i - 1]
+        }
+    }
+    return summaryResult + numbersArr[numbersArr.size - 1]
 }
 
 /**
@@ -461,76 +461,4 @@ fun fromRoman(roman: String): Int {
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
-    var bracers = 0
-    val legalsymbols = setOf('+', '>', '<', '-', ' ')
-    for (i in commands) {
-        if (i == ']') {
-            bracers -= 1
-        } else if (i == '[') {
-            bracers += 1
-        } else if (i !in legalsymbols) {
-            throw IllegalArgumentException()
-        }
-        if (bracers < 0) {
-            throw IllegalArgumentException()
-        }
-    }
-    if (bracers != 0) {
-        throw IllegalArgumentException()
-    }
-    val array = mutableListOf<Int>()
-    for (i in 0 until cells) {
-        array.add(0)
-    }
-    var position = cells / 2
-
-    var jump = 0
-    var i = -1
-    var memposition = mutableListOf<Int>()
-    var checker = 0
-
-    while (i < commands.length - 1) {
-
-        i++
-        checker++
-        if (checker > limit) {
-            return array
-        }
-        var symbol = commands[i]
-        println("$i, $array, $position, $symbol")
-        if (jump > 0) {
-            if (symbol == '[') {
-                jump++
-            } else if (symbol == ']') {
-                jump--
-            }
-            if (jump > 0) {
-                continue
-            }
-        }
-
-        if (symbol == '>') {
-            position++
-            if (position > cells) {
-                throw IllegalArgumentException()
-            }
-        } else if (symbol == '<') {
-            position--
-        } else if (symbol == '+') {
-            array[position]++
-        } else if (symbol == '-') {
-            array[position]--
-        } else if ((symbol == '[') && (array[position] == 0)) {
-            memposition.add(i)
-            jump++
-        } else if ((symbol == '[') && (array[position] != 0)) {
-            memposition.add(i)
-        } else if ((symbol == ']') && (array[position] != 0)) {
-            i = memposition[memposition.lastIndex]
-        } else if ((symbol == ']') && (array[position] == 0)) {
-            memposition.remove(memposition.lastIndex)
-        }
-    }
-    return array
-}
+fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()

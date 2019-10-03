@@ -329,7 +329,7 @@ fun plusMinus(expression: String): Int {
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
 fun firstDuplicateIndex(str: String): Int {
-    val words = Regex("""([А-Я]*[а-я]+)|([A-Z]*[a-z]+)""").findAll(str)
+    val words = Regex("""\S+""").findAll(str)
     val indexedArr = mutableListOf<String>()
     var currentPosition = 0
     for (item in words) {
@@ -357,7 +357,7 @@ fun firstDuplicateIndex(str: String): Int {
  * Все цены должны быть больше либо равны нуля.
  */
 fun mostExpensive(description: String): String {
-    val indicator = description.contains(Regex("""^((([А-Я]?[a-я]+)|([A-Z]?[a-z]+)) (\d)+(\.)?(\d)*;? ?)+$"""))
+    val indicator = description.contains(Regex("""^(\S+ (\d)+(\.)?(\d)*;? ?)+$"""))
     if (indicator) {
         val names = Regex("""([А-Я]?[a-я]+)|([A-Z]?[a-z]+)""").findAll(description)
         val costs = Regex("""(\d)+(\.)?(\d)*""").findAll(description)

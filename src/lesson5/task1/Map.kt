@@ -446,16 +446,14 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  */
 
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-    val mapSize = treasures.size
+    val mapSize = treasures.keys.size
     val resultArray: Array<Array<Int>> = Array(mapSize + 1) { Array(capacity + 1) { 0 } }
     val weights = mutableListOf(0)
     val costs = mutableListOf(0)
-    val answer = mutableSetOf<String>()
     val namesindecies = mutableListOf("")
     for ((key, value) in treasures) {
         weights.add(value.first)
         costs.add(value.second)
-        answer.add(key)
         namesindecies.add(key)
     }
     if (mapSize == 1) {
@@ -467,19 +465,27 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     }
     for (amelements in 1..mapSize) {
         for (weightnum in 1..capacity) {
-            if (weights[amelements] <= weightnum) {
+            if (weightnum >= weights[amelements]) {
                 resultArray[amelements][weightnum] = maxOf(
                     resultArray[amelements - 1][weightnum],
-                    resultArray[amelements - 1][weightnum - 1] - costs[amelements - 1] + costs[amelements]
+                    resultArray[amelements - 1][weightnum - weights[amelements]] + costs[amelements]
                 )
+            } else {
+                resultArray[amelements][weightnum] = resultArray[amelements - 1][weightnum]
             }
         }
     }
-    for (elements in resultArray.lastIndex downTo 1) {
-        if (resultArray[elements][resultArray[0].lastIndex] <= resultArray[elements - 1][resultArray[0].lastIndex]) {
-            answer -= namesindecies[elements]
+    val answer = mutableSetOf<String>()
+    fun resultSetFormer(k: Int, s: Int): MutableSet<String> {
+        if (resultArray[k][s] == 0) {
+            return answer
+        }
+        return if (resultArray[k - 1][s] == resultArray[k][s]) {
+            resultSetFormer(k - 1, s)
+        } else {
+            answer.add(namesindecies[k])
+            resultSetFormer(k - 1, s - weights[k])
         }
     }
-
-    return answer
+    return resultSetFormer(mapSize, capacity)
 }

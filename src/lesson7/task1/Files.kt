@@ -3,6 +3,7 @@
 package lesson7.task1
 
 import java.io.File
+import kotlin.math.ceil
 
 /**
  * Пример
@@ -53,7 +54,29 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
  * Регистр букв игнорировать, то есть буквы е и Е считать одинаковыми.
  *
  */
-fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> = TODO()
+fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
+    val inputFile = File(inputName)
+    val resultMap = mutableMapOf<String, Int>()
+    for (str in substrings) {
+        resultMap[str] = 0
+    }
+    for (line in inputFile.readLines()) {
+        for (i in line.indices) {
+            for (key in resultMap.keys) {
+                val lowkey = key.toLowerCase()
+                if (i + key.length <= line.length) {
+                    if (lowkey == line.toLowerCase().substring(i, i + key.length)) {
+                        val tmp = resultMap[key]
+                        if (tmp != null) {
+                            resultMap[key] = tmp + 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return resultMap
+}
 
 
 /**
@@ -70,7 +93,32 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  *
  */
 fun sibilants(inputName: String, outputName: String) {
-    TODO()
+    val inputfile = File(inputName)
+    val outputfile = File(outputName).bufferedWriter()
+    val triggers = setOf('ж', 'ч', 'ш', 'щ')
+    val alsotriggers = setOf('ы', 'я', 'ю')
+    for (line in inputfile.readLines()) {
+        val strtoapp = StringBuilder()
+        strtoapp.append(line[0])
+        for (position in 1 until line.length) {
+            if ((line[position - 1].toLowerCase() in triggers) && (line[position].toLowerCase() in alsotriggers)) {
+                val tmp = when (line[position].toLowerCase()) {
+                    'ы' -> 'и'
+                    'я' -> 'а'
+                    else -> 'у'
+                }
+                if (line[position].isUpperCase()) {
+                    strtoapp.append(tmp.toUpperCase())
+                } else {
+                    strtoapp.append(tmp)
+                }
+            } else {
+                strtoapp.append(line[position])
+            }
+        }
+        outputfile.write(strtoapp.toString() + "\n")
+    }
+    outputfile.close()
 }
 
 /**
@@ -91,7 +139,24 @@ fun sibilants(inputName: String, outputName: String) {
  *
  */
 fun centerFile(inputName: String, outputName: String) {
-    TODO()
+    val inputFile = File(inputName).readLines()
+    val outputFile = File(outputName).bufferedWriter()
+    var maximumLength = 0
+    for (line in inputFile) {
+        val deletedSpaces = line.trim()
+        if (deletedSpaces.length > maximumLength) {
+            maximumLength = deletedSpaces.length
+        }
+    }
+    for (line in inputFile) {
+        val deletedSpaces = line.trim()
+        val tmp = StringBuilder()
+        val space = ceil(((maximumLength - deletedSpaces.length) / 2).toDouble()).toInt()
+        tmp.append(" ".repeat(space))
+        tmp.append(deletedSpaces)
+        outputFile.write(tmp.toString() + "\n")
+    }
+    outputFile.close()
 }
 
 /**
@@ -122,7 +187,60 @@ fun centerFile(inputName: String, outputName: String) {
  * 8) Если входной файл удовлетворяет требованиям 1-7, то он должен быть в точности идентичен выходному файлу
  */
 fun alignFileByWidth(inputName: String, outputName: String) {
-    TODO()
+    val inputFile = File(inputName).readLines()
+    val outputFile = File(outputName).bufferedWriter()
+    var itsLongitude = 0
+    val separateWords = mutableListOf<MutableList<String>>()
+    val strLengthes = mutableListOf<Int>()
+    val strWordsAmounts = mutableListOf<Int>()
+    for (line in inputFile) {
+        val tmp = Regex("""\S+""").findAll(line)
+        val wordsInLine = mutableListOf<String>()
+        var currentLength = 0
+        for (item in tmp) {
+            wordsInLine.add(item.value)
+            currentLength += item.value.length
+        }
+        strLengthes.add(currentLength)
+        if (currentLength + wordsInLine.size - 1 > itsLongitude) {
+            itsLongitude = currentLength + wordsInLine.size - 1
+        }
+        separateWords.add(wordsInLine)
+        strWordsAmounts.add(wordsInLine.size)
+    }
+    for (differentLength in 0 until strLengthes.size) {
+        if (strLengthes[differentLength] + strWordsAmounts[differentLength] - 1 == itsLongitude) {
+            val strToAdd = StringBuilder()
+            for (item in separateWords[differentLength]) {
+                strToAdd.append("$item ")
+            }
+            outputFile.write(strToAdd.toString().trim() + "\n")
+        } else {
+            if (separateWords[differentLength].size > 1) {
+                val spacedToAdd =
+                    (itsLongitude - strLengthes[differentLength]) / (separateWords[differentLength].size - 1)
+                var divisionRest =
+                    (itsLongitude - strLengthes[differentLength]) % (separateWords[differentLength].size - 1)
+                val strToAdd = StringBuilder()
+                for (item in separateWords[differentLength]) {
+                    if (divisionRest > 0) {
+                        strToAdd.append(item)
+                        divisionRest -= 1
+                        strToAdd.append(" ".repeat(spacedToAdd + 1))
+                    } else {
+                        strToAdd.append(item)
+                        strToAdd.append(" ".repeat(spacedToAdd))
+                    }
+                }
+                outputFile.write(strToAdd.toString().trim() + "\n")
+            } else if (separateWords[differentLength].size == 0) {
+                outputFile.write("\n")
+            } else if (separateWords[differentLength].size == 1) {
+                outputFile.write(separateWords[differentLength][0].trim() + "\n")
+            }
+        }
+    }
+    outputFile.close()
 }
 
 /**
@@ -143,7 +261,38 @@ fun alignFileByWidth(inputName: String, outputName: String) {
  * Ключи в ассоциативном массиве должны быть в нижнем регистре.
  *
  */
-fun top20Words(inputName: String): Map<String, Int> = TODO()
+fun top20Words(inputName: String): Map<String, Int> {
+    val inputFile = File(inputName).readLines()
+    val wordsMap = mutableMapOf<String, Int>()
+    for (line in inputFile) {
+        val wordsLine = Regex("""([A-Za-zА-Яа-яёЁ]+)""").findAll(line)
+        for (word in wordsLine) {
+            val current = word.value.toLowerCase()
+            if (current in wordsMap) {
+                val tmp = wordsMap[current]
+                if (tmp != null) {
+                    wordsMap[current] = tmp + 1
+                }
+            } else {
+                wordsMap[current] = 1
+            }
+        }
+    }
+    if (wordsMap.size >= 20) {
+        val answer = mutableMapOf<String, Int>()
+        val sortedWordsMap = wordsMap.toList().sortedByDescending { (_, value) -> value }.toMap()
+        var i = 0
+        for ((key, value) in sortedWordsMap) {
+            if (i < 20) {
+                answer[key] = value
+                i++
+            } else {
+                return answer
+            }
+        }
+    }
+    return wordsMap
+}
 
 /**
  * Средняя
@@ -181,7 +330,33 @@ fun top20Words(inputName: String): Map<String, Int> = TODO()
  * Обратите внимание: данная функция не имеет возвращаемого значения
  */
 fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: String) {
-    TODO()
+    val inputFile = File(inputName).readLines()
+    val outputFile = File(outputName).bufferedWriter()
+    val dictionaryCopy = mutableMapOf<Char, String>()
+    for ((key, value) in dictionary) {
+        dictionaryCopy[key.toLowerCase()] = value.toLowerCase()
+    }
+    for (line in inputFile) {
+        val temporary = StringBuilder()
+        for (symbol in line) {
+            val lcsymbol = symbol.toLowerCase()
+            if (lcsymbol in dictionaryCopy) {
+                if (symbol.isUpperCase()) {
+                    if (dictionaryCopy[lcsymbol]?.length!! > 1) {
+                        temporary.append(dictionaryCopy[lcsymbol]?.substring(0, 1)?.toUpperCase() + dictionaryCopy[lcsymbol]?.substring(1))
+                    } else {
+                        temporary.append(dictionaryCopy[lcsymbol]?.toUpperCase())
+                    }
+                } else {
+                    temporary.append(dictionaryCopy[lcsymbol])
+                }
+            } else {
+                temporary.append(symbol)
+            }
+        }
+        outputFile.write("$temporary\n")
+    }
+    outputFile.close()
 }
 
 /**
@@ -209,7 +384,43 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
  * Обратите внимание: данная функция не имеет возвращаемого значения
  */
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
-    TODO()
+    val inputFile = File(inputName).readLines()
+    val outputFile = File(outputName).bufferedWriter()
+    val wordsWithDifferentLetters = mutableSetOf<String>()
+    var maximumLength = 0
+    for (line in inputFile) {
+        if (line.toLowerCase().toSet().size == line.length) {
+            wordsWithDifferentLetters.add(line)
+            if (line.length > maximumLength) {
+                maximumLength = line.length
+            }
+        }
+    }
+    val longestWords = mutableSetOf<String>()
+    for (element in wordsWithDifferentLetters) {
+        if (element.length == maximumLength) {
+            var indicator = false
+            for (possibleElement in longestWords) {
+                if (element.toLowerCase() == possibleElement.toLowerCase()) {
+                    indicator = true
+                }
+            }
+            if (!indicator) {
+                longestWords.add(element)
+            }
+        }
+    }
+    val sizeOfResSet = longestWords.size - 1
+    var i = 0
+    for (element in longestWords) {
+        if (i != sizeOfResSet) {
+            outputFile.write("$element, ")
+        } else {
+            outputFile.write(element)
+        }
+        i++
+    }
+    outputFile.close()
 }
 
 /**
@@ -244,23 +455,127 @@ Suspendisse ~~et elit in enim tempus iaculis~~.
  *
  * Соответствующий выходной файл:
 <html>
-    <body>
-        <p>
-            Lorem ipsum <i>dolor sit amet</i>, consectetur <b>adipiscing</b> elit.
-            Vestibulum lobortis. <s>Est vehicula rutrum <i>suscipit</i></s>, ipsum <s>lib</s>ero <i>placerat <b>tortor</b></i>.
-        </p>
-        <p>
-            Suspendisse <s>et elit in enim tempus iaculis</s>.
-        </p>
-    </body>
+<body>
+<p>
+Lorem ipsum <i>dolor sit amet</i>, consectetur <b>adipiscing</b> elit.
+Vestibulum lobortis. <s>Est vehicula rutrum <i>suscipit</i></s>, ipsum <s>lib</s>ero <i>placerat <b>tortor</b></i>.
+</p>
+<p>
+Suspendisse <s>et elit in enim tempus iaculis</s>.
+</p>
+</body>
 </html>
  *
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
-fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    TODO()
-}
 
+fun markdownToHtmlSimple(inputName: String, outputName: String) {
+    val outputFile = File(outputName).bufferedWriter()
+    val inputFile = File(inputName).readLines()
+    val alreadyIn = mutableSetOf<String>()
+    var closeP = true
+    outputFile.write("<html><body><p>")
+    for (line in inputFile) {
+        println(line)
+        if ((line.isEmpty()) && !closeP) {
+            outputFile.write("<p>")
+            closeP = true
+        } else if ((line.isEmpty()) && closeP) {
+            outputFile.write("</p>")
+            outputFile.write("<p>")
+            closeP = false
+        } else if (line.isNotEmpty()) {
+            val toAdd = StringBuilder()
+            val subs = Regex("""([^~*]+)|([~*]+)""").findAll(line)
+            for (element in subs) {
+                if (Regex("""[~*]+""").matches(element.value)) {
+                    if ((element.value == "*") && ("*" !in alreadyIn)) {
+                        toAdd.append("<i>")
+                        alreadyIn.add("*")
+                    } else if ((element.value == "*") && ("*" in alreadyIn)) {
+                        toAdd.append("</i>")
+                        alreadyIn.remove("*")
+                    }
+
+                    if ((element.value == "**") && ("**" !in alreadyIn)) {
+                        toAdd.append("<b>")
+                        alreadyIn.add("**")
+                    } else if ((element.value == "**") && ("**" in alreadyIn)) {
+                        toAdd.append("</b>")
+                        alreadyIn.remove("**")
+                    }
+
+                    if ((element.value == "~~") && ("~~" !in alreadyIn)) {
+                        toAdd.append("<s>")
+                        alreadyIn.add("~~")
+                    } else if ((element.value == "~~") && ("~~" in alreadyIn)) {
+                        toAdd.append("</s>")
+                        alreadyIn.remove("~~")
+                    }
+
+                    if ((element.value == "***") && ("**" !in alreadyIn) && ("*" !in alreadyIn)) {
+                        toAdd.append("<b><i>")
+                        alreadyIn.add("**")
+                        alreadyIn.add("*")
+                    } else if ((element.value == "***") && ("**" in alreadyIn) && ("*" !in alreadyIn)) {
+                        toAdd.append("</b><i>")
+                        alreadyIn.remove("**")
+                        alreadyIn.add("*")
+                    } else if ((element.value == "***") && ("**" !in alreadyIn) && ("*" in alreadyIn)) {
+                        toAdd.append("<b></i>")
+                        alreadyIn.add("**")
+                        alreadyIn.remove("*")
+                    } else if ((element.value == "***") && ("**" in alreadyIn) && ("*" in alreadyIn)) {
+                        toAdd.append("</b></i>")
+                        alreadyIn.remove("**")
+                        alreadyIn.remove("*")
+                    }
+
+                    if ((element.value == "~~*") && ("~~" in alreadyIn) && ("*" in alreadyIn)) {
+                        toAdd.append("</s></i>")
+                        alreadyIn.remove("~~")
+                        alreadyIn.remove("*")
+                    } else if ((element.value == "~~*") && ("~~" in alreadyIn) && ("*" !in alreadyIn)) {
+                        toAdd.append("</s><i>")
+                        alreadyIn.remove("~~")
+                        alreadyIn.add("*")
+                    } else if ((element.value == "~~*") && ("~~" !in alreadyIn) && ("*" in alreadyIn)) {
+                        toAdd.append("<s></i>")
+                        alreadyIn.add("~~")
+                        alreadyIn.remove("*")
+                    } else if ((element.value == "~~*") && ("~~" !in alreadyIn) && ("*" !in alreadyIn)) {
+                        toAdd.append("<s><i>")
+                        alreadyIn.add("~~")
+                        alreadyIn.add("*")
+                    }
+
+                    if ((element.value == "*~~") && ("~~" in alreadyIn) && ("*" in alreadyIn)) {
+                        toAdd.append("</i></s>")
+                        alreadyIn.remove("~~")
+                        alreadyIn.remove("*")
+                    } else if ((element.value == "*~~") && ("~~" in alreadyIn) && ("*" !in alreadyIn)) {
+                        toAdd.append("<i></s>")
+                        alreadyIn.remove("~~")
+                        alreadyIn.add("*")
+                    } else if ((element.value == "*~~") && ("~~" !in alreadyIn) && ("*" in alreadyIn)) {
+                        toAdd.append("</i><s>")
+                        alreadyIn.add("~~")
+                        alreadyIn.remove("*")
+                    } else if ((element.value == "*~~") && ("~~" !in alreadyIn) && ("*" !in alreadyIn)) {
+                        toAdd.append("<i><s>")
+                        alreadyIn.add("~~")
+                        alreadyIn.add("*")
+                    }
+                } else {
+                    toAdd.append(element.value)
+                }
+            }
+            outputFile.write(toAdd.toString())
+        }
+    }
+    outputFile.write("</p></body></html>")
+    outputFile.close()
+}
 /**
  * Сложная
  *
@@ -295,67 +610,67 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
  *
  * Пример входного файла:
 ///////////////////////////////начало файла/////////////////////////////////////////////////////////////////////////////
-* Утка по-пекински
-    * Утка
-    * Соус
-* Салат Оливье
-    1. Мясо
-        * Или колбаса
-    2. Майонез
-    3. Картофель
-    4. Что-то там ещё
-* Помидоры
-* Фрукты
-    1. Бананы
-    23. Яблоки
-        1. Красные
-        2. Зелёные
+ * Утка по-пекински
+ * Утка
+ * Соус
+ * Салат Оливье
+1. Мясо
+ * Или колбаса
+2. Майонез
+3. Картофель
+4. Что-то там ещё
+ * Помидоры
+ * Фрукты
+1. Бананы
+23. Яблоки
+1. Красные
+2. Зелёные
 ///////////////////////////////конец файла//////////////////////////////////////////////////////////////////////////////
  *
  *
  * Соответствующий выходной файл:
 ///////////////////////////////начало файла/////////////////////////////////////////////////////////////////////////////
 <html>
-  <body>
-    <ul>
-      <li>
-        Утка по-пекински
-        <ul>
-          <li>Утка</li>
-          <li>Соус</li>
-        </ul>
-      </li>
-      <li>
-        Салат Оливье
-        <ol>
-          <li>Мясо
-            <ul>
-              <li>
-                  Или колбаса
-              </li>
-            </ul>
-          </li>
-          <li>Майонез</li>
-          <li>Картофель</li>
-          <li>Что-то там ещё</li>
-        </ol>
-      </li>
-      <li>Помидоры</li>
-      <li>
-        Фрукты
-        <ol>
-          <li>Бананы</li>
-          <li>
-            Яблоки
-            <ol>
-              <li>Красные</li>
-              <li>Зелёные</li>
-            </ol>
-          </li>
-        </ol>
-      </li>
-    </ul>
-  </body>
+<body>
+<ul>
+<li>
+Утка по-пекински
+<ul>
+<li>Утка</li>
+<li>Соус</li>
+</ul>
+</li>
+<li>
+Салат Оливье
+<ol>
+<li>Мясо
+<ul>
+<li>
+Или колбаса
+</li>
+</ul>
+</li>
+<li>Майонез</li>
+<li>Картофель</li>
+<li>Что-то там ещё</li>
+</ol>
+</li>
+<li>Помидоры</li>
+<li>
+Фрукты
+<ol>
+<li>Бананы</li>
+<li>
+Яблоки
+<ol>
+<li>Красные</li>
+<li>Зелёные</li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
+</body>
 </html>
 ///////////////////////////////конец файла//////////////////////////////////////////////////////////////////////////////
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
@@ -382,23 +697,23 @@ fun markdownToHtml(inputName: String, outputName: String) {
  * Вывести в выходной файл процесс умножения столбиком числа lhv (> 0) на число rhv (> 0).
  *
  * Пример (для lhv == 19935, rhv == 111):
-   19935
-*    111
+19935
+ *    111
 --------
-   19935
+19935
 + 19935
 +19935
 --------
- 2212785
+2212785
  * Используемые пробелы, отступы и дефисы должны в точности соответствовать примеру.
  * Нули в множителе обрабатывать так же, как и остальные цифры:
-  235
-*  10
+235
+ *  10
 -----
-    0
+0
 +235
 -----
- 2350
+2350
  *
  */
 fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
@@ -412,16 +727,16 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
  * Вывести в выходной файл процесс деления столбиком числа lhv (> 0) на число rhv (> 0).
  *
  * Пример (для lhv == 19935, rhv == 22):
-  19935 | 22
- -198     906
- ----
-    13
-    -0
-    --
-    135
-   -132
-   ----
-      3
+19935 | 22
+-198     906
+----
+13
+-0
+--
+135
+-132
+----
+3
 
  * Используемые пробелы, отступы и дефисы должны в точности соответствовать примеру.
  *

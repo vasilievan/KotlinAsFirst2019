@@ -2,6 +2,8 @@
 
 package lesson6.task1
 
+import lesson2.task2.daysInMonth
+
 /**
  * Пример
  *
@@ -71,11 +73,10 @@ fun main() {
  */
 
 fun dateStrToDigit(str: String): String {
-    val a = str.split(" ")
-    var indicator = false
-    val lean = listOf(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-    val leap = listOf(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-    val monthes = listOf(
+    if (!str.matches(Regex("""\d{1,2} [а-я]+ \d+"""))) {
+        return ""
+    }
+    val monthesnames = listOf(
         "января",
         "февраля",
         "марта",
@@ -89,39 +90,14 @@ fun dateStrToDigit(str: String): String {
         "ноября",
         "декабря"
     )
-    val numday: Int
-    val nummonth: String
-    val numyear: Int
-    try {
-        numday = a[0].toInt()
-        nummonth = a[1]
-        numyear = a[2].toInt()
-    } catch (e: IndexOutOfBoundsException) {
+    val converted = str.split(" ")
+    if (converted[1] !in monthesnames) {
         return ""
     }
-    if ((numyear % 400 == 0) || ((numyear % 100 != 0) && (numyear % 4 == 0))) {
-        indicator = true
-    }
-    if (indicator) {
-        return if (nummonth in monthes) {
-            if (numday <= leap[monthes.indexOf(nummonth)]) {
-                String.format("%02d.%02d.%d", numday, monthes.indexOf(nummonth) + 1, numyear)
-            } else {
-                ""
-            }
-        } else {
-            ""
-        }
+    return if (daysInMonth(monthesnames.indexOf(converted[1]) + 1, converted[2].toInt()) >= converted[0].toInt()) {
+        "%02d.%02d.%s".format(converted[0].toInt(), monthesnames.indexOf(converted[1]) + 1, converted[2])
     } else {
-        return if (nummonth in monthes) {
-            if (numday <= lean[monthes.indexOf(nummonth)]) {
-                String.format("%02d.%02d.%02d", numday, monthes.indexOf(nummonth) + 1, numyear)
-            } else {
-                ""
-            }
-        } else {
-            ""
-        }
+        ""
     }
 }
 
@@ -136,54 +112,33 @@ fun dateStrToDigit(str: String): String {
  * входными данными.
  */
 fun dateDigitToStr(digital: String): String {
-    if (digital == "") {
+    if (!digital.matches(Regex("""\d{2}.\d{2}.\d+"""))) {
         return ""
     }
-    val indicator = digital.contains(Regex("""^((0[1-9])|([123]\d))\.((0[1-9])|(1[012]))\.\d+$"""))
-    if (indicator) {
-        val numbers = Regex("""\d+""").findAll(digital)
-        val days = numbers.elementAt(0).value.toInt()
-        val monthes = numbers.elementAt(1).value.toInt()
-        val years = numbers.elementAt(2).value.toInt()
-        var leapchecker = false
-        if ((years % 400 == 0) || ((years % 100 != 0) && (years % 4 == 0))) {
-            leapchecker = true
-        }
-        val lean = listOf(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-        val leap = listOf(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-
-        val monthesnames = listOf(
-            "января",
-            "февраля",
-            "марта",
-            "апреля",
-            "мая",
-            "июня",
-            "июля",
-            "августа",
-            "сентября",
-            "октября",
-            "ноября",
-            "декабря"
-        )
-
-        val namem = monthesnames[monthes - 1]
-
-        if (leapchecker) {
-            if (days <= leap[monthes - 1]) {
-                return "$days $namem $years"
-            } else {
-                return ""
-            }
-        } else {
-            if (days <= lean[monthes - 1]) {
-                return "$days $namem $years"
-            } else {
-                return ""
-            }
-        }
-    } else {
+    val converted = digital.split(".")
+    val monthesnames = listOf(
+        "января",
+        "февраля",
+        "марта",
+        "апреля",
+        "мая",
+        "июня",
+        "июля",
+        "августа",
+        "сентября",
+        "октября",
+        "ноября",
+        "декабря"
+    )
+    val day = converted[0].removePrefix("0").toInt()
+    val month = converted[1].removePrefix("0").toInt()
+    if ((month > 12) || (month < 1)) {
         return ""
+    }
+    return if (daysInMonth(month, converted[2].toInt()) >= day) {
+        "$day ${monthesnames[month - 1]} ${converted[2]}"
+    } else {
+        ""
     }
 }
 
@@ -202,17 +157,8 @@ fun dateDigitToStr(digital: String): String {
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
 fun flattenPhoneNumber(phone: String): String {
-    val indicator = phone.contains(Regex("""^(\+)?(\d)+ *(\((\d)+ *-* *(\d)*\))?((\d)*-* *)*$"""))
-    return if (indicator) {
-        val a = Regex("""\d""").findAll(phone)
-        var resultStr = ""
-        if ("+" in phone) {
-            resultStr += "+"
-        }
-        for (item in a) {
-            resultStr += item.value
-        }
-        resultStr
+    return if (phone.matches(Regex("""^(\+)?(\d)+ *(\((\d)+ *-* *(\d)*\))?((\d)*-* *)*$"""))) {
+        phone.replace(Regex("""[()\- ]"""), "")
     } else {
         ""
     }
@@ -233,19 +179,12 @@ fun bestLongJump(jumps: String): Int {
     if (jumps.contains(Regex("""[^-% \d]"""))) {
         indicator = false
     }
-    return if (indicator) {
-        val found = Regex("""(\d)+""").findAll(jumps)
-        var maximum = -1
-        for (item in found) {
-            if (item.value.toInt() > maximum) {
-                maximum = item.value.toInt()
-            }
-        }
-        maximum
-    } else {
-        -1
+    if (!indicator) {
+        return -1
     }
-
+    val found = Regex("""(\d)+""").findAll(jumps)
+    val answer = found.map { it.value.toIntOrNull() }.filterNotNull().max()
+    return answer ?: -1
 }
 
 /**
@@ -261,20 +200,12 @@ fun bestLongJump(jumps: String): Int {
  */
 fun bestHighJump(jumps: String): Int {
     val indicator = jumps.contains(Regex("""(\d+ [+%\-]{1,3} ?)+"""))
-    val arraywithlucky = mutableListOf<String>()
-    var maximum = -1
-    if (indicator) {
-        val found = Regex("""\d+ %?-?\++%?-?""").findAll(jumps)
-        for (item in found) {
-            arraywithlucky.add(item.value.replace(" ", "").replace("+", "").replace("%", "").replace("-", ""))
-        }
-        for (item in arraywithlucky) {
-            if (item.toInt() > maximum) {
-                maximum = item.toInt()
-            }
-        }
+    if (!indicator) {
+        return -1
     }
-    return maximum
+    val found = Regex("""\d+ %?-?\++%?-?""").findAll(jumps)
+    val maximum = found.map { it.value.replace(Regex("""[ +%\-]"""), "").toInt() }.max()
+    return maximum ?: -1
 }
 
 /**
@@ -287,36 +218,28 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
-    var indicator = expression.contains(Regex("""^\d+$"""))
-    if (indicator) {
-        val groups = Regex("""\d+""").findAll(expression)
-        for (item in groups) {
-            return item.value.toInt()
-        }
-    }
-    indicator = expression.contains(Regex("""^(\d+ [+\-] \d+)+$"""))
-    if (indicator) {
-        val groups = Regex("""\d+""").findAll(expression)
-        val mps = Regex("""[+\-]""").findAll(expression)
-        val array = mutableListOf<Int>()
-        for (item in groups) {
-            array.add(item.value.toInt())
-        }
-        var summary = array[0]
-        var counter = 1
-        for (item in mps) {
-            if (item.value == "+") {
-                summary += array[counter]
-                counter++
-            } else {
-                summary -= array[counter]
-                counter++
-            }
-        }
-        return summary
-    } else {
+    if (!expression.matches(Regex("""(\d+ [+-] )*\d+"""))) {
         throw IllegalArgumentException()
     }
+    val numbers = Regex("""\d+""").findAll(expression)
+    val plandmi = Regex("""[+\-]""").findAll(expression)
+    val listOfNumbers = mutableListOf<Int>()
+    val listOfPaM = mutableListOf("+")
+    for (number in numbers) {
+        listOfNumbers.add(number.value.toInt())
+    }
+    for (plusOrMinus in plandmi) {
+        listOfPaM.add(plusOrMinus.value)
+    }
+    var answer = 0
+    for (i in listOfNumbers.indices) {
+        if (listOfPaM[i] == "+") {
+            answer += listOfNumbers[i]
+        } else {
+            answer -= listOfNumbers[i]
+        }
+    }
+    return answer
 }
 
 /**

@@ -3,6 +3,7 @@
 package lesson6.task1
 
 import lesson2.task2.daysInMonth
+import lesson3.task1.cos
 
 /**
  * Пример
@@ -283,26 +284,23 @@ fun mostExpensive(description: String): String {
     if (!description.matches(Regex("""^(\S+ (\d)+(\.)?(\d)*;? ?)+$"""))) {
         return ""
     }
-    val names = Regex("""[^\d. ;]+""").findAll(description)
-    val costs = Regex("""(\d)+(\.)?(\d)*""").findAll(description)
-    val arrnames = mutableListOf<String>()
-    val arrcosts = mutableListOf<Double>()
-    for (item in names) {
-        arrnames.add(item.value)
-    }
-    for (item in costs) {
-        arrcosts.add(item.value.toDouble())
+    val goods = description.split("; ")
+    val names = mutableListOf<String>()
+    val costs = mutableListOf<Double>()
+    for (anyGood in goods) {
+        val splited = anyGood.split(" ")
+        names.add(splited[0])
+        costs.add(splited[1].toDouble())
     }
     var maximum = Double.NEGATIVE_INFINITY
-    var res = ""
-    for (i in 0 until arrcosts.size) {
-        println(arrnames[i])
-        if (arrcosts[i] > maximum) {
-            maximum = arrcosts[i]
-            res = arrnames[i]
+    var answer = ""
+    for (i in costs.indices) {
+        if (costs[i] > maximum) {
+            maximum = costs[i]
+            answer = names[i]
         }
     }
-    return res
+    return answer
 }
 
 /**

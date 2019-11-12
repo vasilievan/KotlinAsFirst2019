@@ -111,6 +111,7 @@ class Tests {
     @Test
     @Tag("Easy")
     fun circleDistance() {
+        assertEquals(0.0, Circle(Point(0.11306922098889738, 0.5267148490263622), 0.10000000000000023).distance(Circle(Point(0.30165947744336485, 0.6662058158647183), 0.4663685402203811)), 1e-5)
         assertEquals(0.0, Circle(Point(0.0, 0.0), 1.0).distance(Circle(Point(1.0, 0.0), 1.0)), 1e-5)
         assertEquals(0.0, Circle(Point(0.0, 0.0), 1.0).distance(Circle(Point(0.0, 2.0), 1.0)), 1e-5)
         assertEquals(1.0, Circle(Point(0.0, 0.0), 1.0).distance(Circle(Point(-4.0, 0.0), 2.0)), 1e-5)

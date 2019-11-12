@@ -77,12 +77,10 @@ data class Circle(val center: Point, val radius: Double) {
      * Расстояние между пересекающимися окружностями считать равным 0.0.
      */
     fun distance(other: Circle): Double {
-        return if ((center.distance(other.center) > abs(other.radius - radius)) &&
-            (center.distance(other.center) < abs(other.radius + radius))
-        ) {
-            0.0
+        return if (this.center.distance(other.center) - (this.radius + other.radius) > 0) {
+            this.center.distance(other.center) - (this.radius + other.radius)
         } else {
-            center.distance(other.center) - (radius + other.radius)
+            0.0
         }
     }
 
@@ -149,7 +147,6 @@ class Line private constructor(val b: Double, val angle: Double) {
     init {
         require(angle >= 0 && angle < PI) { "Incorrect line angle: $angle" }
     }
-
     constructor(point: Point, angle: Double) : this(point.y * cos(angle) - point.x * sin(angle), angle)
 
     /**
@@ -160,11 +157,19 @@ class Line private constructor(val b: Double, val angle: Double) {
      */
 
     fun crossPoint(other: Line): Point {
-        val y =
-            (sin(this.angle) * other.b - this.b * sin(other.angle)) / (cos(other.angle) * sin(this.angle) - sin(other.angle) * cos(
-                this.angle
-            ))
-        val x = (y * cos(this.angle) - this.b) / sin(this.angle)
+        if (this.angle == PI / 2) {
+            return Point(0-this.b, other.b)
+        }
+        if (other.angle == PI / 2) {
+            return Point(0.0, this.b)
+        }
+        if (tan(this.angle) - tan(other.angle) == 0.0) {
+            if (this.b == other.b) {
+                return Point(0.0, this.b)
+            }
+        }
+        val x = (other.b/cos(other.angle) - this.b/cos(this.angle) ) / (tan(this.angle) - tan(other.angle))
+        val y = tan(this.angle) * x + this.b/cos(this.angle)
         return Point(x, y)
     }
 
@@ -297,7 +302,7 @@ fun minContainingCircle(vararg points: Point): Circle {
         }
         var answer = circleByDiameter(seg)
         var indicator = true
-        while (indicator) {
+        /**while (indicator) {
             indicator = false
             for (point in pointsSet) {
                 if (answer.center.distance(point) > answer.radius) {
@@ -306,7 +311,7 @@ fun minContainingCircle(vararg points: Point): Circle {
                     break
                 }
             }
-        }
+        }**/
         return answer
     }
 }

@@ -280,30 +280,29 @@ fun firstDuplicateIndex(str: String): Int {
  * Все цены должны быть больше либо равны нуля.
  */
 fun mostExpensive(description: String): String {
-    val indicator = description.contains(Regex("""^(\S+ (\d)+(\.)?(\d)*;? ?)+$"""))
-    if (indicator) {
-        val names = Regex("""([А-Я]?[a-я]+)|([A-Z]?[a-z]+)""").findAll(description)
-        val costs = Regex("""(\d)+(\.)?(\d)*""").findAll(description)
-        val arrnames = mutableListOf<String>()
-        val arrcosts = mutableListOf<Double>()
-        for (item in names) {
-            arrnames.add(item.value)
-        }
-        for (item in costs) {
-            arrcosts.add(item.value.toDouble())
-        }
-        var maximum = Double.NEGATIVE_INFINITY
-        var res = ""
-        for (i in 0 until arrcosts.size) {
-            if (arrcosts[i] > maximum) {
-                maximum = arrcosts[i]
-                res = arrnames[i]
-            }
-        }
-        return res
-    } else {
+    if (!description.matches(Regex("""^(\S+ (\d)+(\.)?(\d)*;? ?)+$"""))) {
         return ""
     }
+    val names = Regex("""[^\d. ;]+""").findAll(description)
+    val costs = Regex("""(\d)+(\.)?(\d)*""").findAll(description)
+    val arrnames = mutableListOf<String>()
+    val arrcosts = mutableListOf<Double>()
+    for (item in names) {
+        arrnames.add(item.value)
+    }
+    for (item in costs) {
+        arrcosts.add(item.value.toDouble())
+    }
+    var maximum = Double.NEGATIVE_INFINITY
+    var res = ""
+    for (i in 0 until arrcosts.size) {
+        println(arrnames[i])
+        if (arrcosts[i] > maximum) {
+            maximum = arrcosts[i]
+            res = arrnames[i]
+        }
+    }
+    return res
 }
 
 /**

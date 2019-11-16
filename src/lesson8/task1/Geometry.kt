@@ -246,26 +246,8 @@ fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> {
  * (построить окружность по трём точкам, или
  * построить окружность, описанную вокруг треугольника - эквивалентная задача).
  */
-fun circleByThreePoints_0(a: Point, b: Point, c: Point): Circle {
-    val nom = -0.5 * (a.y * (b.x.pow(2) + b.y.pow(2) - c.x.pow(2) - c.y.pow(2))
-            + b.y * (c.x.pow(2) + c.y.pow(2) - a.x.pow(2) - a.y.pow(2))
-            + c.y * (a.x.pow(2) + a.y.pow(2) - b.x.pow(2) - b.y.pow(2)))
-	val ynom = 0.5 * (a.x * (b.x.pow(2) + b.y.pow(2) - c.x.pow(2) - c.y.pow(2)) + b.x * (c.x.pow(2) + c.y.pow(2) - a.x.pow(2) - a.y.pow(2)) + c.x * (a.x.pow(2) + a.y.pow(2) - b.x.pow(2) - b.y.pow(2)))
-	val denom = a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.y*(a.y - b.y)
-	val tr = Triangle(a, b, c)
-	val R = a.distance(b)*a.distance(c)*b.distance(c)/(4 * tr.area())
-	return Circle(Point(nom / denom, ynom / denom), R)
-}
-
-fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
-    var ma = (b.y - a.y) / (b.x - a.x)
-    var mb = (c.y - b.y) / (c.x - b.x)
-    val x = (ma*mb*(a.y - c.y) + mb*(a.x + b.x) - ma*(b.x + c.x))/(2*(mb-ma))
-    ma = (b.x - a.x) / (b.y - a.y)
-    mb = (c.x - b.x) / (c.y - b.y)
-    val y = (ma*mb*(a.x - c.x) + mb*(a.y + b.y) - ma*(b.y + c.y))/(2*(mb-ma))
-    return Circle(Point(x, y), Point(x, y).distance(a))
-}
+fun circleByThreePoints(a: Point, b: Point, c: Point): Circle =
+    Circle(bisectorByPoints(a, b).crossPoint(bisectorByPoints(b, c)), a.distance(bisectorByPoints(a, b).crossPoint(bisectorByPoints(b, c))))
 /**
  * Очень сложная
  *
@@ -296,7 +278,7 @@ fun minContainingCircle(vararg points: Point): Circle {
         }
         var answer = circleByDiameter(seg)
         var indicator = true
-        /**while (indicator) {
+        while (indicator) {
             indicator = false
             for (point in pointsSet) {
                 if (answer.center.distance(point) > answer.radius) {
@@ -305,7 +287,7 @@ fun minContainingCircle(vararg points: Point): Circle {
                     break
                 }
             }
-        }**/
+        }
         return answer
     }
 }

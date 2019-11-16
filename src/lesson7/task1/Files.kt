@@ -384,17 +384,13 @@ fun chooseLongestChaoticWord(inputName: String, outputName: String) {
             }
         }
     }
-    var i = 0
+    val strToApp = StringBuilder()
     for (element in wordsWithDifferentLetters) {
-        i++
         if (element.length == maximumLength) {
-            if (i < wordsWithDifferentLetters.size) {
-                outputFile.append("$element, ")
-            } else {
-                outputFile.append(element)
-            }
+            strToApp.append("$element, ")
         }
     }
+    outputFile.append(strToApp.toString().removeSuffix(", "))
     outputFile.close()
 }
 

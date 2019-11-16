@@ -197,7 +197,7 @@ fun lineBySegment(s: Segment): Line = lineByPoints(s.begin, s.end)
  * Построить прямую по двум точкам
  */
 fun lineByPoints(a: Point, b: Point): Line {
-    val angle = (atan((b.y - a.y) / (b.x - a.x)) + 2 * PI) % (PI * 2)
+    val angle = (atan((b.y - a.y) / (b.x - a.x)) + 2 * PI) % PI
     return Line(a, angle)
 }
 
@@ -208,7 +208,7 @@ fun lineByPoints(a: Point, b: Point): Line {
  */
 fun bisectorByPoints(a: Point, b: Point): Line {
     val midPoint = Point((a.x + b.x) / 2, (a.y + b.y) / 2)
-    val angle = (atan((b.y - a.y) / (b.x - a.x)) + PI / 2) % (2 * PI)
+    val angle = (atan((b.y - a.y) / (b.x - a.x)) + PI / 2) % PI
     return Line(midPoint, angle)
 }
 

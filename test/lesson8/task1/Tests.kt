@@ -111,7 +111,18 @@ class Tests {
     @Test
     @Tag("Easy")
     fun circleDistance() {
-        assertEquals(0.0, Circle(Point(0.11306922098889738, 0.5267148490263622), 0.10000000000000023).distance(Circle(Point(0.30165947744336485, 0.6662058158647183), 0.4663685402203811)), 1e-5)
+        assertEquals(
+            0.0,
+            Circle(Point(0.11306922098889738, 0.5267148490263622), 0.10000000000000023).distance(
+                Circle(
+                    Point(
+                        0.30165947744336485,
+                        0.6662058158647183
+                    ), 0.4663685402203811
+                )
+            ),
+            1e-5
+        )
         assertEquals(0.0, Circle(Point(0.0, 0.0), 1.0).distance(Circle(Point(1.0, 0.0), 1.0)), 1e-5)
         assertEquals(0.0, Circle(Point(0.0, 0.0), 1.0).distance(Circle(Point(0.0, 2.0), 1.0)), 1e-5)
         assertEquals(1.0, Circle(Point(0.0, 0.0), 1.0).distance(Circle(Point(-4.0, 0.0), 2.0)), 1e-5)
@@ -177,6 +188,15 @@ class Tests {
         assertApproxEquals(Line(Point(0.0, 0.0), 0.0), lineBySegment(Segment(Point(0.0, 0.0), Point(7.0, 0.0))))
         assertApproxEquals(Line(Point(0.0, 0.0), PI / 2), lineBySegment(Segment(Point(0.0, 0.0), Point(0.0, 8.0))))
         assertApproxEquals(Line(Point(1.0, 1.0), PI / 4), lineBySegment(Segment(Point(1.0, 1.0), Point(3.0, 3.0))))
+        /**assertApproxEquals(
+            Line(-0.9320605249066114, 3.063056775476168),
+            lineBySegment(
+                Segment(
+                    Point(0.7927314367063637, 0.8725561754436802),
+                    Point(-2.220446049250313e-16, 0.9349423512740623)
+                )
+            )
+        )**/
     }
 
     @Test

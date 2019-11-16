@@ -158,20 +158,13 @@ class Line private constructor(val b: Double, val angle: Double) {
      */
 
     fun crossPoint(other: Line): Point {
-        if (this.angle == PI / 2) {
-            return Point(0 - this.b, other.b)
+        val x = (b * cos(other.angle) - other.b * cos(angle)) / sin(other.angle - angle)
+        val y = (b + x * sin(angle)) / cos(angle)
+        return if (angle != PI / 2) {
+            Point(x, y)
+        } else {
+            Point(x, (other.b + x * sin(other.angle)) / cos(other.angle))
         }
-        if (other.angle == PI / 2) {
-            return Point(0.0, this.b)
-        }
-        if (tan(this.angle) - tan(other.angle) == 0.0) {
-            if (this.b == other.b) {
-                return Point(0.0, this.b)
-            }
-        }
-        val x = (other.b / cos(other.angle) - this.b / cos(this.angle)) / (tan(this.angle) - tan(other.angle))
-        val y = tan(this.angle) * x + this.b / cos(this.angle)
-        return Point(x, y)
     }
 
     override fun equals(other: Any?) = other is Line && angle == other.angle && b == other.b
@@ -209,7 +202,7 @@ fun lineByPoints(a: Point, b: Point): Line {
  */
 fun bisectorByPoints(a: Point, b: Point): Line {
     val midPoint = Point((a.x + b.x) / 2, (a.y + b.y) / 2)
-    val angle = (atan((b.y - a.y) / (b.x - a.x)) + PI / 2) % PI
+    val angle = (atan((a.y - b.y) / (a.x - b.x)) + PI / 2) % PI
     return Line(midPoint, angle)
 }
 
@@ -248,14 +241,10 @@ fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> {
  * построить окружность, описанную вокруг треугольника - эквивалентная задача).
  */
 // центр описанной окружности - точка пересечения срединных перпендикуляров
-fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
-    val cir = Circle(
-        bisectorByPoints(a, c).crossPoint(bisectorByPoints(b, c)),
-        (bisectorByPoints(a, c).crossPoint(bisectorByPoints(b, c))).distance(a)
-    )
-    println(cir)
-    return cir
-}
+fun circleByThreePoints(a: Point, b: Point, c: Point): Circle = Circle(
+    bisectorByPoints(a, c).crossPoint(bisectorByPoints(b, c)),
+    (bisectorByPoints(a, c).crossPoint(bisectorByPoints(b, c))).distance(a)
+)
 
 /**
  * Очень сложная

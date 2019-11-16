@@ -147,6 +147,7 @@ class Line private constructor(val b: Double, val angle: Double) {
     init {
         require(angle >= 0 && angle < PI) { "Incorrect line angle: $angle" }
     }
+
     constructor(point: Point, angle: Double) : this(point.y * cos(angle) - point.x * sin(angle), angle)
 
     /**
@@ -158,7 +159,7 @@ class Line private constructor(val b: Double, val angle: Double) {
 
     fun crossPoint(other: Line): Point {
         if (this.angle == PI / 2) {
-            return Point(0-this.b, other.b)
+            return Point(0 - this.b, other.b)
         }
         if (other.angle == PI / 2) {
             return Point(0.0, this.b)
@@ -168,8 +169,8 @@ class Line private constructor(val b: Double, val angle: Double) {
                 return Point(0.0, this.b)
             }
         }
-        val x = (other.b/cos(other.angle) - this.b/cos(this.angle) ) / (tan(this.angle) - tan(other.angle))
-        val y = tan(this.angle) * x + this.b/cos(this.angle)
+        val x = (other.b / cos(other.angle) - this.b / cos(this.angle)) / (tan(this.angle) - tan(other.angle))
+        val y = tan(this.angle) * x + this.b / cos(this.angle)
         return Point(x, y)
     }
 
@@ -246,12 +247,12 @@ fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> {
  * (построить окружность по трём точкам, или
  * построить окружность, описанную вокруг треугольника - эквивалентная задача).
  */
-fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
-    // центр описанной окружности - точка пересечения срединных перпендикуляров
-    val center = bisectorByPoints(a, b).crossPoint(bisectorByPoints(a, c))
-    val radius = a.distance(center)
-    return Circle(center, radius)
-}
+// центр описанной окружности - точка пересечения срединных перпендикуляров
+fun circleByThreePoints(a: Point, b: Point, c: Point): Circle = Circle(
+    bisectorByPoints(a, b).crossPoint(bisectorByPoints(b, c)),
+    (bisectorByPoints(a, b).crossPoint(bisectorByPoints(b, c))).distance(a)
+)
+
 /**
  * Очень сложная
  *

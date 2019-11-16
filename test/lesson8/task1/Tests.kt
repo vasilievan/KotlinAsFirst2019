@@ -236,6 +236,10 @@ class Tests {
         val resultTwo = circleByThreePoints(Point(-632.0, 0.0), Point(0.259588546075214, 5e-324), Point(0.9802326324869184, -632.0))
         assertTrue(resultTwo.center.distance(Point(-315.87020572696235, -316.36088090305543)) < 1e-5)
         assertEquals(447.23847530469726, resultTwo.radius, 1e-5)
+
+        val resultThree = circleByThreePoints(Point(0.0, 0.6060639916820778), Point(-632.0, -632.0), Point(0.0, -632.0))
+        assertTrue(resultThree.center.distance(Point(-316.0, -315.6969680041589)) < 1e-5)
+        assertEquals(447.10581303508235, resultThree.radius, 1e-5)
     }
 
     @Test

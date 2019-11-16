@@ -159,9 +159,8 @@ class Line private constructor(val b: Double, val angle: Double) {
 
     fun crossPoint(other: Line): Point {
         val x = (b * cos(other.angle) - other.b * cos(angle)) / sin(other.angle - angle)
-        val y = (b + x * sin(angle)) / cos(angle)
         return if (angle != PI / 2) {
-            Point(x, y)
+            Point(x, (b + x * sin(angle)) / cos(angle))
         } else {
             Point(x, (other.b + x * sin(other.angle)) / cos(other.angle))
         }
@@ -264,28 +263,27 @@ fun minContainingCircle(vararg points: Point): Circle {
         throw IllegalArgumentException()
     } else if (pointsSet.size == 1) {
         return Circle(points[0], 0.0)
-    } else {
-        var seg = Segment(points[0], points[1])
-        for (point in pointsSet) {
-            for (anotherPoint in pointsSet) {
-                if ((point.hashCode() != anotherPoint.hashCode()) && (point.distance(anotherPoint) > distance)) {
-                    distance = point.distance(anotherPoint)
-                    seg = Segment(point, anotherPoint)
-                }
-            }
-        }
-        var answer = circleByDiameter(seg)
-        var indicator = true
-        while (indicator) {
-            indicator = false
-            for (point in pointsSet) {
-                if (answer.center.distance(point) > answer.radius) {
-                    answer = circleByThreePoints(seg.begin, seg.end, point)
-                    indicator = true
-                    break
-                }
-            }
-        }
-        return answer
     }
+    var seg = Segment(points[0], points[1])
+    for (point in pointsSet) {
+        for (anotherPoint in pointsSet) {
+            if ((point.hashCode() != anotherPoint.hashCode()) && (point.distance(anotherPoint) > distance)) {
+                distance = point.distance(anotherPoint)
+                seg = Segment(point, anotherPoint)
+            }
+        }
+    }
+    var answer = circleByDiameter(seg)
+    var indicator = true
+    while (indicator) {
+        indicator = false
+        for (point in pointsSet) {
+            if (answer.center.distance(point) > answer.radius) {
+                answer = circleByThreePoints(seg.begin, seg.end, point)
+                indicator = true
+                break
+            }
+        }
+    }
+    return answer
 }

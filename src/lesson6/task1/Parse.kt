@@ -319,10 +319,14 @@ fun fromRoman(roman: String): Int {
     }
     val plusNumber = mapOf('I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000)
     for (item in roman) {
-        if (plusNumber[item] != null) {
-            numbersArr.add(plusNumber[item])
-        } else {
-            return -1
+        when (item) {
+            'I' -> numbersArr.add(1)
+            'V' -> numbersArr.add(5)
+            'X' -> numbersArr.add(10)
+            'L' -> numbersArr.add(50)
+            'C' -> numbersArr.add(100)
+            'D' -> numbersArr.add(500)
+            'M' -> numbersArr.add(1000)
         }
     }
     for (i in 1 until numbersArr.size) {

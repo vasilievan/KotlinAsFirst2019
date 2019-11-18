@@ -95,7 +95,8 @@ fun dateStrToDigit(str: String): String {
     if (converted[1] !in monthesnames) {
         return ""
     }
-    return if (daysInMonth(monthesnames.indexOf(converted[1]) + 1, converted[2].toInt()) >= converted[0].toInt()) {
+    val monthLengthIsCorrect = daysInMonth(monthesnames.indexOf(converted[1]) + 1, converted[2].toInt()) >= converted[0].toInt()
+    return if (monthLengthIsCorrect) {
         "%02d.%02d.%s".format(converted[0].toInt(), monthesnames.indexOf(converted[1]) + 1, converted[2])
     } else {
         ""
@@ -176,15 +177,11 @@ fun flattenPhoneNumber(phone: String): String {
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
 fun bestLongJump(jumps: String): Int {
-    var indicator = jumps.contains(Regex("""((\d)+ +-?%?)+"""))
     if (jumps.contains(Regex("""[^-% \d]"""))) {
-        indicator = false
-    }
-    if (!indicator) {
         return -1
     }
     val found = Regex("""(\d)+""").findAll(jumps)
-    val answer = found.map { it.value.toIntOrNull() }.filterNotNull().max()
+    val answer = found.map { it.value.toInt() }.max()
     return answer ?: -1
 }
 
@@ -200,8 +197,7 @@ fun bestLongJump(jumps: String): Int {
  * вернуть -1.
  */
 fun bestHighJump(jumps: String): Int {
-    val indicator = jumps.contains(Regex("""(\d+ [+%\-]{1,3} ?)+"""))
-    if (!indicator) {
+    if (!jumps.matches(Regex("""(\d+ [+%\-]{1,3} ?)+"""))) {
         return -1
     }
     val found = Regex("""\d+ %?-?\++%?-?""").findAll(jumps)
@@ -219,9 +215,7 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
-    if (!expression.matches(Regex("""(\d+ [+-] )*\d+"""))) {
-        throw IllegalArgumentException()
-    }
+    require(expression.matches(Regex("""(\d+ [+-] )*\d+""")))
     val numbers = Regex("""\d+""").findAll(expression)
     val plandmi = Regex("""[+\-]""").findAll(expression)
     val listOfNumbers = mutableListOf<Int>()
@@ -281,7 +275,7 @@ fun firstDuplicateIndex(str: String): Int {
  * Все цены должны быть больше либо равны нуля.
  */
 fun mostExpensive(description: String): String {
-    if (!description.matches(Regex("""^(\S+ (\d)+(\.)?(\d)*;? ?)+$"""))) {
+    if (!description.matches(Regex("""^(\S+ (\d)+(\.)?(\d)*; )*(\S+ (\d)+(\.)?(\d)*)$"""))) {
         return ""
     }
     val goods = description.split("; ")
@@ -324,16 +318,9 @@ fun fromRoman(roman: String): Int {
     if (!indicator) {
         return -1
     }
+    val plusNumber = mapOf('I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000)
     for (item in roman) {
-        when (item) {
-            'I' -> numbersArr.add(1)
-            'V' -> numbersArr.add(5)
-            'X' -> numbersArr.add(10)
-            'L' -> numbersArr.add(50)
-            'C' -> numbersArr.add(100)
-            'D' -> numbersArr.add(500)
-            'M' -> numbersArr.add(1000)
-        }
+        numbersArr.add(plusNumber[item]!!)
     }
     for (i in 1 until numbersArr.size) {
         if (numbersArr[i - 1] < numbersArr[i]) {

@@ -3,6 +3,7 @@
 package lesson6.task1
 
 import lesson2.task2.daysInMonth
+import lesson3.task1.cos
 
 /**
  * Пример
@@ -94,8 +95,8 @@ fun dateStrToDigit(str: String): String {
     if (converted[1] !in monthesnames) {
         return ""
     }
-    val monthLengthIsCorrect = daysInMonth(monthesnames.indexOf(converted[1]) + 1, converted[2].toInt()) >= converted[0].toInt()
-    return if (monthLengthIsCorrect) {
+    val appropriateDaysInMonth = daysInMonth(monthesnames.indexOf(converted[1]) + 1, converted[2].toInt()) >= converted[0].toInt()
+    return if (appropriateDaysInMonth) {
         "%02d.%02d.%s".format(converted[0].toInt(), monthesnames.indexOf(converted[1]) + 1, converted[2])
     } else {
         ""
@@ -176,7 +177,7 @@ fun flattenPhoneNumber(phone: String): String {
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
 fun bestLongJump(jumps: String): Int {
-    if (jumps.contains(Regex("""[^-% \d]"""))) {
+    if (!jumps.matches(Regex("""^((\d)+[ %\-]* )*((\d)+[ %\-]*)$"""))) {
         return -1
     }
     val found = Regex("""(\d)+""").findAll(jumps)
@@ -214,7 +215,9 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
-    require(expression.matches(Regex("""(\d+ [+-] )*\d+""")))
+    if (!expression.matches(Regex("""(\d+ [+-] )*\d+"""))) {
+        throw IllegalArgumentException()
+    }
     val numbers = Regex("""\d+""").findAll(expression)
     val plandmi = Regex("""[+\-]""").findAll(expression)
     val listOfNumbers = mutableListOf<Int>()

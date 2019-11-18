@@ -4,6 +4,9 @@ package lesson8.task1
 
 import lesson1.task1.sqr
 import kotlin.math.*
+import javax.swing.text.html.HTML.Attribute.N
+import lesson8.task1.Circle
+
 
 /**
  * Точка на плоскости
@@ -89,9 +92,7 @@ data class Circle(val center: Point, val radius: Double) {
      *
      * Вернуть true, если и только если окружность содержит данную точку НА себе или ВНУТРИ себя
      */
-    fun contains(p: Point): Boolean {
-        return center.distance(p) <= radius
-    }
+    fun contains(p: Point): Boolean = center.distance(p) <= radius
 }
 
 /**
@@ -256,34 +257,46 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle = Circle(
  * три точки данного множества, либо иметь своим диаметром отрезок,
  * соединяющий две самые удалённые точки в данном множестве.
  */
+fun circleByTwo(begin: Point, end: Point): Circle {
+    return Circle(
+        Point((begin.x + end.x) / 2, (begin.y + end.y) / 2),
+        begin.distance(end) / 2
+    )
+}
+
 fun minContainingCircle(vararg points: Point): Circle {
-    val pointsSet = points.toSet()
-    var distance = 0.0
-    if (pointsSet.isEmpty()) {
-        throw IllegalArgumentException()
-    } else if (pointsSet.size == 1) {
-        return Circle(points[0], 0.0)
-    }
-    var seg = Segment(points[0], points[1])
-    for (point in pointsSet) {
-        for (anotherPoint in pointsSet) {
-            if ((point.hashCode() != anotherPoint.hashCode()) && (point.distance(anotherPoint) > distance)) {
-                distance = point.distance(anotherPoint)
-                seg = Segment(point, anotherPoint)
+    fun combinedTwoAndThree (i: Int, j: Int, k: Int): Circle {
+        return if (Triangle(points[i], points[j], points[k]).area() > 0) {
+            circleByThreePoints(points[i], points[j], points[k])
+        } else {
+            return if ((points[i].distance(points[k]) > points[i].distance(points[j])) && (points[i].distance(points[k]) > points[j].distance(points[k]))) {
+                circleByTwo(points[i], points[k])
+            } else if ((points[i].distance(points[j]) > points[i].distance(points[k])) && (points[i].distance(points[j]) > points[j].distance(points[k]))) {
+                circleByTwo(points[i], points[j])
+            } else {
+                circleByTwo(points[j], points[k])
             }
         }
     }
-    var answer = circleByDiameter(seg)
-    var indicator = true
-    while (indicator) {
-        indicator = false
-        for (point in pointsSet) {
-            if (answer.center.distance(point) > answer.radius) {
-                answer = circleByThreePoints(seg.begin, seg.end, point)
-                indicator = true
-                break
+    var answer = Circle(Point(0.0, 0.0), 0.0)
+    val n = points.size - 1
+    for (i in 0..n) {
+        for (j in (i + 1)..n) {
+            for (k in (j + 1)..n) {
+                answer = combinedTwoAndThree(i, j, k)
+                var indicator = false
+                for (r in 0..n) {
+                    if (!answer.contains(points[r])) {
+                        indicator = true
+                        break
+                    }
+                }
+                if (!indicator) {
+                    return answer
+                }
             }
         }
     }
     return answer
 }
+

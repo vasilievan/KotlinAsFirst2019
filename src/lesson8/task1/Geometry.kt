@@ -265,38 +265,6 @@ fun circleByTwo(begin: Point, end: Point): Circle {
 }
 
 fun minContainingCircle(vararg points: Point): Circle {
-    fun combinedTwoAndThree (i: Int, j: Int, k: Int): Circle {
-        return if (Triangle(points[i], points[j], points[k]).area() > 0) {
-            circleByThreePoints(points[i], points[j], points[k])
-        } else {
-            return if ((points[i].distance(points[k]) > points[i].distance(points[j])) && (points[i].distance(points[k]) > points[j].distance(points[k]))) {
-                circleByTwo(points[i], points[k])
-            } else if ((points[i].distance(points[j]) > points[i].distance(points[k])) && (points[i].distance(points[j]) > points[j].distance(points[k]))) {
-                circleByTwo(points[i], points[j])
-            } else {
-                circleByTwo(points[j], points[k])
-            }
-        }
-    }
-    var answer = Circle(Point(0.0, 0.0), 0.0)
-    val n = points.size - 1
-    for (i in 0..n) {
-        for (j in (i + 1)..n) {
-            for (k in (j + 1)..n) {
-                answer = combinedTwoAndThree(i, j, k)
-                var indicator = false
-                for (r in 0..n) {
-                    if (!answer.contains(points[r])) {
-                        indicator = true
-                        break
-                    }
-                }
-                if (!indicator) {
-                    return answer
-                }
-            }
-        }
-    }
-    return answer
+    TODO()
 }
 

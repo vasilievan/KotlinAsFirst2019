@@ -3,6 +3,7 @@
 package lesson9.task2
 
 import lesson9.task1.Matrix
+import lesson9.task1.MatrixImpl
 import lesson9.task1.createMatrix
 
 // Все задачи в этом файле требуют наличия реализации интерфейса "Матрица" в Matrix.kt
@@ -60,7 +61,49 @@ operator fun Matrix<Int>.plus(other: Matrix<Int>): Matrix<Int> {
  * 10 11 12  5
  *  9  8  7  6
  */
-fun generateSpiral(height: Int, width: Int): Matrix<Int> = TODO()
+fun generateSpiral(height: Int, width: Int): Matrix<Int> {
+    var m = 0
+    var j = 1
+    val matrix = MatrixImpl(height, width, 0)
+    // обработка случая, когда к-во строк != к-ву столбцов
+    var coef = 0
+    var coefTwo = 0
+    if ((height % 2 != 0) && (width % 2 == 0)) {
+        coef = 1
+    } else if ((height % 2 == 0) && (width % 2 != 0)) {
+        coefTwo = 1
+    }
+    for (v in 0..height / 2) {
+        for (i in 0 until width - m) {
+            if (matrix[v, i + v] == 0) {
+                matrix[v, i + v] = j
+                j++
+            }
+        }
+        for (i in v + 1 until width - v - coef + coefTwo) {
+            if (matrix[i, width - v - 1] == 0) {
+                matrix[i, width - v - 1] = j
+                j++
+            }
+        }
+        for (i in v + 1 until width - v) {
+            if (matrix[height - v - 1, width - i - 1] == 0) {
+                matrix[height - v - 1, width - i - 1] = j
+                j++
+            }
+
+        }
+        for (i in v + 1 until width - v - 1 - coef + coefTwo) {
+            if (matrix[height - i - 1, v] == 0) {
+                matrix[height - i - 1, v] = j
+                j++
+            }
+
+        }
+        m += 2
+    }
+    return matrix
+}
 
 /**
  * Сложная
@@ -76,7 +119,47 @@ fun generateSpiral(height: Int, width: Int): Matrix<Int> = TODO()
  *  1  2  2  2  2  1
  *  1  1  1  1  1  1
  */
-fun generateRectangles(height: Int, width: Int): Matrix<Int> = TODO()
+// та же спираль, только инкремент аргумента происходит иначе
+fun generateRectangles(height: Int, width: Int): Matrix<Int> {
+    var m = 0
+    var j = 1
+    val matrix = MatrixImpl(height, width, 0)
+    // обработка случая, когда к-во строк != к-ву столбцов
+    var coef = 0
+    var coefTwo = 0
+    if ((height % 2 != 0) && (width % 2 == 0)) {
+        coef = 1
+    } else if ((height % 2 == 0) && (width % 2 != 0)) {
+        coefTwo = 1
+    }
+    for (v in 0..height / 2) {
+        for (i in 0 until width - m) {
+            if (matrix[v, i + v] == 0) {
+                matrix[v, i + v] = j
+            }
+        }
+        for (i in v + 1 until width - v - coef + coefTwo) {
+            if (matrix[i, width - v - 1] == 0) {
+                matrix[i, width - v - 1] = j
+            }
+        }
+        for (i in v + 1 until width - v) {
+            if (matrix[height - v - 1, width - i - 1] == 0) {
+                matrix[height - v - 1, width - i - 1] = j
+            }
+
+        }
+        for (i in v + 1 until width - v - 1 - coef + coefTwo) {
+            if (matrix[height - i - 1, v] == 0) {
+                matrix[height - i - 1, v] = j
+            }
+
+        }
+        m += 2
+        j++
+    }
+    return matrix
+}
 
 /**
  * Сложная

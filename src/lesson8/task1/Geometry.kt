@@ -4,9 +4,6 @@ package lesson8.task1
 
 import lesson1.task1.sqr
 import kotlin.math.*
-import javax.swing.text.html.HTML.Attribute.N
-import lesson8.task1.Circle
-
 
 /**
  * Точка на плоскости

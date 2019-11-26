@@ -66,6 +66,20 @@ fun generateSpiral(height: Int, width: Int): Matrix<Int> {
     var m = 0
     var j = 1
     val matrix = MatrixImpl(height, width, 0)
+    if (width == 1) {
+        for (row in 0 until height) {
+            matrix[row, 0] = j
+            j++
+        }
+        return matrix
+    }
+    if (height == 1) {
+        for (column in 0 until width) {
+            matrix[0, column] = j
+            j++
+        }
+        return matrix
+    }
     for (v in 0..height / 2) {
         for (i in 0 until width - m) {
             if (matrix[v, i + v] == 0) {

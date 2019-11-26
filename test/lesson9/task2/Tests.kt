@@ -99,6 +99,17 @@ class Tests {
                 )
             ), generateSpiral(3, 3)
         )
+        assertEquals(
+            createMatrix(
+                4, 1,
+                listOf(
+                    listOf(1),
+                    listOf(2),
+                    listOf(3),
+                    listOf(4)
+                )
+            ), generateSpiral(4, 1)
+        )
     }
 
     @Test

@@ -121,7 +121,7 @@ class Tests {
                     listOf(9, 6),
                     listOf(8, 7)
                 )
-            ), generateSpiral(4, 1)
+            ), generateSpiral(6, 2)
         )
     }
 

@@ -53,6 +53,18 @@ class MatrixImpl<E>(override val height: Int, override val width: Int, e: E) : M
         require((height > 0) && (width > 0))
     }
 
+    infix fun notInside(arg: E): Boolean {
+        for (row in 0 until height) {
+            for (column in 0 until width){
+                if (list[row][column] == arg) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+
     private val list = MutableList(height) {  MutableList(width) { e } }
 
     override fun get(row: Int, column: Int): E = list[row][column]

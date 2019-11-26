@@ -63,17 +63,21 @@ operator fun Matrix<Int>.plus(other: Matrix<Int>): Matrix<Int> {
  *  9  8  7  6
  */
 fun generateSpiral(height: Int, width: Int): Matrix<Int> {
+    println("$height, $width")
     var m = 0
     var j = 1
     val matrix = MatrixImpl(height, width, 0)
     for (v in 0..height / 2) {
+        if (matrix notInside 0) {
+            return matrix
+        }
         for (i in 0 until width - m) {
             if (matrix[v, i + v] == 0) {
                 matrix[v, i + v] = j
                 j++
             }
         }
-        for (i in v + 1 until height - v) {
+        for (i in v until height - v) {
             if (matrix[i, width - v - 1] == 0) {
                 matrix[i, width - v - 1] = j
                 j++
@@ -84,7 +88,6 @@ fun generateSpiral(height: Int, width: Int): Matrix<Int> {
                 matrix[height - v - 1, width - i - 1] = j
                 j++
             }
-
         }
         for (i in v + 1 until height - v - 1) {
             if (matrix[height - i - 1, v] == 0) {

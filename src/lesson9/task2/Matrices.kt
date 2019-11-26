@@ -5,6 +5,7 @@ package lesson9.task2
 import lesson9.task1.Matrix
 import lesson9.task1.MatrixImpl
 import lesson9.task1.createMatrix
+import kotlin.math.abs
 
 // Все задачи в этом файле требуют наличия реализации интерфейса "Матрица" в Matrix.kt
 
@@ -65,14 +66,6 @@ fun generateSpiral(height: Int, width: Int): Matrix<Int> {
     var m = 0
     var j = 1
     val matrix = MatrixImpl(height, width, 0)
-    // обработка случая, когда к-во строк != к-ву столбцов
-    var coef = 0
-    var coefTwo = 0
-    if ((height % 2 != 0) && (width % 2 == 0)) {
-        coef = 1
-    } else if ((height % 2 == 0) && (width % 2 != 0)) {
-        coefTwo = 1
-    }
     for (v in 0..height / 2) {
         for (i in 0 until width - m) {
             if (matrix[v, i + v] == 0) {
@@ -80,7 +73,7 @@ fun generateSpiral(height: Int, width: Int): Matrix<Int> {
                 j++
             }
         }
-        for (i in v + 1 until width - v - coef + coefTwo) {
+        for (i in v + 1 until height - v) {
             if (matrix[i, width - v - 1] == 0) {
                 matrix[i, width - v - 1] = j
                 j++
@@ -93,7 +86,7 @@ fun generateSpiral(height: Int, width: Int): Matrix<Int> {
             }
 
         }
-        for (i in v + 1 until width - v - 1 - coef + coefTwo) {
+        for (i in v + 1 until height - v - 1) {
             if (matrix[height - i - 1, v] == 0) {
                 matrix[height - i - 1, v] = j
                 j++

@@ -50,7 +50,7 @@ fun <E> createMatrix(height: Int, width: Int, e: E): Matrix<E> = MatrixImpl(heig
  * */
 class MatrixImpl<E>(override val height: Int, override val width: Int, e: E) : Matrix<E> {
     init {
-        require((height >= 0) && (width >= 0))
+        require((height > 0) && (width > 0))
     }
 
     private val list = MutableList(height) {  MutableList(width) { e } }

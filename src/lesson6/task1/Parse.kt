@@ -314,7 +314,7 @@ fun fromRoman(roman: String): Int {
     if (roman == "") {
         return -1
     }
-    val indicator = roman.contains(Regex("""^M{0,3}((CM|CD|D)?C{0,3})((XC|XL|L)?X{0,3})((IX|IV|V)?I{0,3})$"""))
+    val indicator = roman.matches(Regex("""^M{0,3}((CM|CD|D)?C{0,3})((XC|XL|L)?X{0,3})((IX|IV|V)?I{0,3})$"""))
     val numbersArr = mutableListOf<Int>()
     var summaryResult = 0
     if (!indicator) {

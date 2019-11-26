@@ -63,7 +63,6 @@ operator fun Matrix<Int>.plus(other: Matrix<Int>): Matrix<Int> {
  *  9  8  7  6
  */
 fun generateSpiral(height: Int, width: Int): Matrix<Int> {
-    println("$height, $width")
     var m = 0
     var j = 1
     val matrix = MatrixImpl(height, width, 0)
@@ -120,21 +119,16 @@ fun generateRectangles(height: Int, width: Int): Matrix<Int> {
     var m = 0
     var j = 1
     val matrix = MatrixImpl(height, width, 0)
-    // обработка случая, когда к-во строк != к-ву столбцов
-    var coef = 0
-    var coefTwo = 0
-    if ((height % 2 != 0) && (width % 2 == 0)) {
-        coef = 1
-    } else if ((height % 2 == 0) && (width % 2 != 0)) {
-        coefTwo = 1
-    }
     for (v in 0..height / 2) {
+        if (matrix notInside 0) {
+            return matrix
+        }
         for (i in 0 until width - m) {
             if (matrix[v, i + v] == 0) {
                 matrix[v, i + v] = j
             }
         }
-        for (i in v + 1 until width - v - coef + coefTwo) {
+        for (i in v until height - v) {
             if (matrix[i, width - v - 1] == 0) {
                 matrix[i, width - v - 1] = j
             }
@@ -143,9 +137,8 @@ fun generateRectangles(height: Int, width: Int): Matrix<Int> {
             if (matrix[height - v - 1, width - i - 1] == 0) {
                 matrix[height - v - 1, width - i - 1] = j
             }
-
         }
-        for (i in v + 1 until width - v - 1 - coef + coefTwo) {
+        for (i in v + 1 until height - v - 1) {
             if (matrix[height - i - 1, v] == 0) {
                 matrix[height - i - 1, v] = j
             }

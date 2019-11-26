@@ -161,7 +161,6 @@ class Tests {
                 )
             ), generateRectangles(5, 6)
         )
-
     }
 
     @Test

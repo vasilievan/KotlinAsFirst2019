@@ -9,6 +9,13 @@ import kotlin.math.*
  * Точка на плоскости
  */
 data class Point(val x: Double, val y: Double) {
+    override fun equals(other: Any?): Boolean {
+        if ((other is Point) && (x == other.x) && (y == other.y)) {
+            return true
+        }
+        return false
+    }
+
     /**
      * Пример
      *
@@ -82,6 +89,15 @@ data class Circle(val center: Point, val radius: Double) {
         } else {
             0.0
         }
+    }
+
+    infix fun allInside(set: Set<Point>): Boolean {
+        for (point in set) {
+            if (!this.contains(point)) {
+                return false
+            }
+        }
+        return true
     }
 
     /**
@@ -254,14 +270,43 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle = Circle(
  * три точки данного множества, либо иметь своим диаметром отрезок,
  * соединяющий две самые удалённые точки в данном множестве.
  */
-fun circleByTwo(begin: Point, end: Point): Circle {
-    return Circle(
-        Point((begin.x + end.x) / 2, (begin.y + end.y) / 2),
-        begin.distance(end) / 2
-    )
-}
 
 fun minContainingCircle(vararg points: Point): Circle {
-    TODO()
+    val pointsSet = points.toSet()
+    var distance = 0.0
+    if (pointsSet.isEmpty()) {
+        throw IllegalArgumentException()
+    }
+    if (pointsSet.size == 1) {
+        return Circle(points[0], 0.0)
+    }
+    var seg = Segment(points[0], points[1])
+    for (point in pointsSet) {
+        for (anotherPoint in pointsSet) {
+            if ((point != anotherPoint) && (point.distance(anotherPoint) > distance)) {
+                distance = point.distance(anotherPoint)
+                seg = Segment(point, anotherPoint)
+            }
+        }
+    }
+    var answer = circleByDiameter(seg)
+    if (answer allInside pointsSet) {
+        return answer
+    }
+    answer = Circle(Point(0.0, 0.0), Double.POSITIVE_INFINITY)
+    for (point in pointsSet) {
+        for (anotherPoint in pointsSet) {
+            for (differentPoint in pointsSet) {
+                if ((point != anotherPoint) && (point != differentPoint) && (anotherPoint != differentPoint)) {
+                    val temporary = circleByThreePoints(point, anotherPoint, differentPoint)
+                    if ((temporary allInside pointsSet) && (temporary.radius < answer.radius)) {
+                        answer = temporary
+                        println(answer)
+                    }
+                }
+            }
+        }
+    }
+    return answer
 }
 

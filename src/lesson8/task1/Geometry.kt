@@ -91,6 +91,13 @@ data class Circle(val center: Point, val radius: Double) {
         }
     }
 
+    /**
+     * Тривиальная
+     *
+     * Вернуть true, если и только если окружность содержит данную точку НА себе или ВНУТРИ себя
+     */
+    fun contains(p: Point): Boolean = center.distance(p) <= radius
+
     infix fun allInside(set: Set<Point>): Boolean {
         for (point in set) {
             if (!this.contains(point)) {
@@ -99,13 +106,6 @@ data class Circle(val center: Point, val radius: Double) {
         }
         return true
     }
-
-    /**
-     * Тривиальная
-     *
-     * Вернуть true, если и только если окружность содержит данную точку НА себе или ВНУТРИ себя
-     */
-    fun contains(p: Point): Boolean = center.distance(p) <= radius
 }
 
 /**
@@ -280,6 +280,9 @@ fun minContainingCircle(vararg points: Point): Circle {
     if (pointsSet.size == 1) {
         return Circle(points[0], 0.0)
     }
+    if (pointsSet.size == 2) {
+        return circleByDiameter(Segment(points[0], points[1]))
+    }
     var seg = Segment(points[0], points[1])
     for (point in pointsSet) {
         for (anotherPoint in pointsSet) {
@@ -301,12 +304,12 @@ fun minContainingCircle(vararg points: Point): Circle {
                     val temporary = circleByThreePoints(point, anotherPoint, differentPoint)
                     if ((temporary allInside pointsSet) && (temporary.radius < answer.radius)) {
                         answer = temporary
-                        println(answer)
                     }
                 }
             }
         }
     }
+    println(answer)
     return answer
 }
 

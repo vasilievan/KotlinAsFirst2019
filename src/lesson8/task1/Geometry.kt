@@ -96,7 +96,7 @@ data class Circle(val center: Point, val radius: Double) {
      *
      * Вернуть true, если и только если окружность содержит данную точку НА себе или ВНУТРИ себя
      */
-    fun contains(p: Point): Boolean = center.distance(p) <= radius
+    fun contains(p: Point): Boolean = center.distance(p) - radius <= 1 / 10.0.pow(6.0)
 
     infix fun allInside(set: Set<Point>): Boolean {
         for (point in set) {
@@ -273,30 +273,27 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle = Circle(
 
 fun minContainingCircle(vararg points: Point): Circle {
     val pointsSet = points.toSet()
-    var distance = 0.0
+
     if (pointsSet.isEmpty()) {
         throw IllegalArgumentException()
     }
     if (pointsSet.size == 1) {
         return Circle(points[0], 0.0)
     }
-    if (pointsSet.size == 2) {
-        return circleByDiameter(Segment(points[0], points[1]))
-    }
-    var seg = Segment(points[0], points[1])
+    
+    var answer = Circle(Point(0.0, 0.0), Double.POSITIVE_INFINITY)
+
     for (point in pointsSet) {
         for (anotherPoint in pointsSet) {
-            if ((point != anotherPoint) && (point.distance(anotherPoint) > distance)) {
-                distance = point.distance(anotherPoint)
-                seg = Segment(point, anotherPoint)
+            if (point != anotherPoint) {
+                val temporary = circleByDiameter(Segment(point, anotherPoint))
+                if ((temporary allInside pointsSet) && (temporary.radius < answer.radius)) {
+                    answer = temporary
+                }
             }
         }
     }
-    var answer = circleByDiameter(seg)
-    if (answer allInside pointsSet) {
-        return answer
-    }
-    answer = Circle(Point(0.0, 0.0), Double.POSITIVE_INFINITY)
+
     for (point in pointsSet) {
         for (anotherPoint in pointsSet) {
             for (differentPoint in pointsSet) {
@@ -309,7 +306,6 @@ fun minContainingCircle(vararg points: Point): Circle {
             }
         }
     }
-    println(answer)
     return answer
 }
 

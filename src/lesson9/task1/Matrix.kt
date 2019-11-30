@@ -80,19 +80,18 @@ class MatrixImpl<E>(override val height: Int, override val width: Int, e: E) : M
     override fun equals(other: Any?): Boolean {
         if (other == null) {
             return false
-        } else {
-            if ((other is MatrixImpl<*>) && (other.width == width) && (other.height == height)) {
-                for (row in 0 until height) {
-                    for (column in 0 until width) {
-                        if (list[row][column] != other.list[row][column]) {
-                            return false
-                        }
+        }
+        if ((other is MatrixImpl<*>) && (other.width == width) && (other.height == height)) {
+            for (row in 0 until height) {
+                for (column in 0 until width) {
+                    if (list[row][column] != other.list[row][column]) {
+                        return false
                     }
                 }
-                return true
-            } else {
-                return false
             }
+            return true
+        } else {
+            return false
         }
     }
 

@@ -112,6 +112,8 @@ data class Circle(val center: Point, val radius: Double) {
  * Отрезок между двумя точками
  */
 data class Segment(val begin: Point, val end: Point) {
+    val length = begin.distance(end)
+
     override fun equals(other: Any?) =
         other is Segment && (begin == other.begin && end == other.end || end == other.begin && begin == other.end)
 
@@ -126,11 +128,11 @@ data class Segment(val begin: Point, val end: Point) {
  * Если в множестве менее двух точек, бросить IllegalArgumentException
  */
 fun diameter(vararg points: Point): Segment {
-    val setOfPoint = points.toSet()
+    require(points.size >= 2)
     var current = Segment(Point(0.0, 0.0), Point(0.0, 0.0))
-    for (point in setOfPoint) {
-        for (another in setOfPoint) {
-            if ((point.hashCode() != another.hashCode()) && (point.distance(another) > current.begin.distance(current.end))) {
+    for (point in points) {
+        for (another in points) {
+            if (current.length < point.distance(another)) {
                 current = Segment(point, another)
             }
         }
@@ -280,7 +282,7 @@ fun minContainingCircle(vararg points: Point): Circle {
     if (pointsSet.size == 1) {
         return Circle(points[0], 0.0)
     }
-    
+
     var answer = Circle(Point(0.0, 0.0), Double.POSITIVE_INFINITY)
 
     for (point in pointsSet) {

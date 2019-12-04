@@ -16,45 +16,57 @@ class Complex(val re: Double, val im: Double) {
     /**
      * Конструктор из вещественного числа
      */
-    constructor(x: Double) : this(TODO(), TODO())
+    constructor(x: Double) : this(x, 0.0)
 
     /**
      * Конструктор из строки вида x+yi
      */
-    constructor(s: String) : this(TODO(), TODO())
+    constructor(s: String) : this(
+        Regex("""-?\d+(\.\d+)?""").findAll(s).elementAt(0).value.toDouble(),
+        Regex("""-?\d+(\.\d+)?""").findAll(s).elementAt(1).value.toDouble()
+    )
 
     /**
      * Сложение.
      */
-    operator fun plus(other: Complex): Complex = TODO()
+    operator fun plus(other: Complex): Complex = Complex(re + other.re, im + other.im)
 
     /**
      * Смена знака (у обеих частей числа)
      */
-    operator fun unaryMinus(): Complex = TODO()
+    operator fun unaryMinus(): Complex = Complex(-im, -re)
 
     /**
      * Вычитание
      */
-    operator fun minus(other: Complex): Complex = TODO()
+    operator fun minus(other: Complex): Complex = Complex(re - other.re, im - other.im)
 
     /**
      * Умножение
      */
-    operator fun times(other: Complex): Complex = TODO()
+    operator fun times(other: Complex): Complex = Complex(re * other.re - im * other.im, im * other.re + re * other.im)
 
     /**
      * Деление
      */
-    operator fun div(other: Complex): Complex = TODO()
+    operator fun div(other: Complex): Complex = Complex(
+        (re * other.re + im * other.im) / (other.re * other.re + other.im * other.im),
+        (im * other.re - re * other.im) / (other.re * other.re + other.im * other.im)
+    )
 
     /**
      * Сравнение на равенство
      */
-    override fun equals(other: Any?): Boolean = TODO()
+    override fun equals(other: Any?): Boolean = (other is Complex) && (other.re == re) && (other.im == im)
 
     /**
      * Преобразование в строку
      */
-    override fun toString(): String = TODO()
+    override fun toString(): String = "$re+${im}i"
+
+    override fun hashCode(): Int {
+        var result = re.hashCode()
+        result = 31 * result + im.hashCode()
+        return result
+    }
 }

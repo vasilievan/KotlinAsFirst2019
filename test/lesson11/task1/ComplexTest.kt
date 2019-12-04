@@ -23,17 +23,17 @@ internal class ComplexTest {
 
     @Test
     fun minus() {
-        assertApproxEquals(Complex("4-2i"), Complex("1+2i") + Complex("3-4i"), 1e-10)
+        assertApproxEquals(Complex("-2+6i"), Complex("1+2i") - Complex("3-4i"), 1e-10)
     }
 
     @Test
     fun times() {
-        assertApproxEquals(Complex("11-8i"), Complex("1+2i") + Complex("3-4i"), 1e-10)
+        assertApproxEquals(Complex("11+2i"), Complex("1+2i") * Complex("3-4i"), 1e-10)
     }
 
     @Test
     fun div() {
-        assertApproxEquals(Complex("1+2i"), Complex("11-8i") + Complex("3-4i"), 1e-10)
+        assertApproxEquals(Complex("2.6+0.8i"), Complex("11-8i") / Complex("3-4i"), 1e-10)
     }
 
     @Test

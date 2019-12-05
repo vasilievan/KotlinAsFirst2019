@@ -17,14 +17,23 @@ package lesson12.task1
  *
  * Класс должен иметь конструктор по умолчанию (без параметров).
  */
+
 class PhoneBook {
+    val dataBase = mutableMapOf<String, Set<String>>()
     /**
      * Добавить человека.
      * Возвращает true, если человек был успешно добавлен,
      * и false, если человек с таким именем уже был в телефонной книге
      * (во втором случае телефонная книга не должна меняться).
      */
-    fun addHuman(name: String): Boolean = TODO()
+    fun addHuman(name: String): Boolean {
+        require(name.matches(Regex("""([A-ZА-ЯЁ][a-zа-яё]*) [A-ZА-ЯЁ][a-zа-я]*""")))
+        if (name in dataBase) {
+            return false
+        }
+        dataBase[name] = mutableSetOf()
+        return true
+    }
 
     /**
      * Убрать человека.
@@ -32,7 +41,14 @@ class PhoneBook {
      * и false, если человек с таким именем отсутствовал в телефонной книге
      * (во втором случае телефонная книга не должна меняться).
      */
-    fun removeHuman(name: String): Boolean = TODO()
+    fun removeHuman(name: String): Boolean {
+        require(name.matches(Regex("""([A-ZА-ЯЁ][a-zа-яё]*) [A-ZА-ЯЁ][a-zа-я]*""")))
+        if (name in dataBase) {
+            dataBase.remove(name)
+            return true
+        }
+        return false
+    }
 
     /**
      * Добавить номер телефона.
@@ -41,7 +57,24 @@ class PhoneBook {
      * либо у него уже был такой номер телефона,
      * либо такой номер телефона зарегистрирован за другим человеком.
      */
-    fun addPhone(name: String, phone: String): Boolean = TODO()
+    fun addPhone(name: String, phone: String): Boolean {
+        if (phone.contains(Regex("""[^\d+*#\-]"""))) return false
+        var indicator = false
+        for ((key, value) in dataBase) {
+            if (phone in value) {
+                return false
+            }
+            if (key == name) {
+                indicator = true
+            }
+        }
+        if (indicator) {
+            val temp = dataBase[name]!! + phone
+            dataBase[name] = temp
+            return true
+        }
+        return false
+    }
 
     /**
      * Убрать номер телефона.
@@ -49,24 +82,63 @@ class PhoneBook {
      * и false, если человек с таким именем отсутствовал в телефонной книге
      * либо у него не было такого номера телефона.
      */
-    fun removePhone(name: String, phone: String): Boolean = TODO()
+    fun removePhone(name: String, phone: String): Boolean {
+        if (phone.contains(Regex("""[^\d+*#\-]"""))) return false
+        if (name !in dataBase) {
+            return false
+        }
+        if (phone in dataBase[name]!!) {
+            val temp = dataBase[name]!! - phone
+            dataBase[name] = temp
+            return true
+        }
+        return false
+    }
 
     /**
      * Вернуть все номера телефона заданного человека.
      * Если этого человека нет в книге, вернуть пустой список
      */
-    fun phones(name: String): Set<String> = TODO()
+    fun phones(name: String): Set<String> {
+        require(name.matches(Regex("""([A-ZА-ЯЁ][a-zа-яё]*) [A-ZА-ЯЁ][a-zа-я]*""")))
+        if (name in dataBase) {
+            return dataBase[name]!!
+        }
+        return setOf()
+    }
 
     /**
      * Вернуть имя человека по заданному номеру телефона.
      * Если такого номера нет в книге, вернуть null.
      */
-    fun humanByPhone(phone: String): String? = TODO()
+    fun humanByPhone(phone: String): String? {
+        if (phone.contains(Regex("""[^\d+*#\-]"""))) {
+            return null
+        }
+        for ((key, value) in dataBase) {
+            if (phone in value) {
+                return key
+            }
+        }
+        return null
+    }
 
     /**
      * Две телефонные книги равны, если в них хранится одинаковый набор людей,
      * и каждому человеку соответствует одинаковый набор телефонов.
      * Порядок людей / порядок телефонов в книге не должен иметь значения.
      */
-    override fun equals(other: Any?): Boolean = TODO()
+    override fun equals(other: Any?): Boolean {
+        if (other is PhoneBook) {
+            for ((key, value) in dataBase) {
+                if (other.dataBase[key] != value) {
+                    return false
+                }
+            }
+            return true
+        }
+        return false
+    }
+
+    override fun hashCode(): Int = dataBase.hashCode()
 }

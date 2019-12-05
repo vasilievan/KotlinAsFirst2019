@@ -16,7 +16,8 @@ package lesson11.task1
  * (в виде строки, целого числа, двух целых чисел и т.д.).
  * Представление числа должно позволять хранить числа с общим числом десятичных цифр не менее 9.
  */
-class FixedPointNumber : Comparable<FixedPointNumber> {
+
+class FixedPointNumber: Comparable<FixedPointNumber> {
     /**
      * Точность - число десятичных цифр после запятой.
      */
@@ -96,4 +97,6 @@ class FixedPointNumber : Comparable<FixedPointNumber> {
      * Преобразование к вещественному числу
      */
     fun toDouble(): Double = TODO()
+
+    override fun hashCode(): Int = javaClass.hashCode()
 }

@@ -90,9 +90,8 @@ class MatrixImpl<E>(override val height: Int, override val width: Int, e: E) : M
                 }
             }
             return true
-        } else {
-            return false
         }
+        return false
     }
 
     override fun toString(): String {
@@ -109,6 +108,13 @@ class MatrixImpl<E>(override val height: Int, override val width: Int, e: E) : M
             answer.append("], ")
         }
         return answer.removeSuffix(", ").toString()
+    }
+
+    override fun hashCode(): Int {
+        var result = height
+        result = 31 * result + width
+        result = 31 * result + list.hashCode()
+        return result
     }
 }
 

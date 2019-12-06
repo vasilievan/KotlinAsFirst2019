@@ -77,7 +77,12 @@ class PolynomTest {
         val p2 = Polynom(1.0, 3.0, 2.0)
         val r = Polynom(1.0, -5.0)
         assertApproxEquals(r, p1 / p2, 1e-10)
+        assertApproxEquals(Polynom(1.0), Polynom(0.0, 2.0, 3.0, 5.6) / Polynom(0.0, 0.0, 2.0, 3.0, 5.6), 1e-10)
+        assertApproxEquals(Polynom(0.0), Polynom(0.0) / Polynom(1.0), 1e-10)
+        assertApproxEquals(Polynom(1.0, -1.0), Polynom(1.0, 0.0, -1.0) / Polynom(1.0, 1.0), 1e-10)
         assertApproxEquals(Polynom(1.0, 2.0), Polynom(2.0, 4.0) / Polynom(0.0, 2.0), 1e-10)
+        assertApproxEquals(Polynom(1.0), Polynom(2.0, 3.0, 5.6) / Polynom(2.0, 3.0, 5.6), 1e-10)
+        assertThrows(IllegalArgumentException::class.java) { Polynom(2.0, 3.0) / Polynom(2.0, 3.0, 5.6) }
     }
 
     @Test
@@ -86,7 +91,7 @@ class PolynomTest {
         val p1 = Polynom(1.0, -2.0, -1.0, 4.0)
         val p2 = Polynom(1.0, 3.0, 2.0)
         val r = Polynom(1.0, -5.0)
-        val q = Polynom(12.0, 16.0)
+        val q = Polynom(12.0, 14.0)
         assertApproxEquals(q, p1 % p2, 1e-10)
         assertApproxEquals(p1, p2 * r + q, 1e-10)
     }

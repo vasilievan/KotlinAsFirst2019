@@ -2,6 +2,9 @@
 
 package lesson11.task1
 
+import java.lang.IllegalArgumentException
+import kotlin.math.pow
+
 /**
  * Класс "полином с вещественными коэффициентами".
  *
@@ -21,15 +24,23 @@ package lesson11.task1
  */
 class Polynom(vararg coeffs: Double) {
 
+    val arrayOfCoeffs = coeffs.toList()
+
     /**
      * Геттер: вернуть значение коэффициента при x^i
      */
-    fun coeff(i: Int): Double = TODO()
+    fun coeff(i: Int): Double = arrayOfCoeffs[i]
 
     /**
      * Расчёт значения при заданном x
      */
-    fun getValue(x: Double): Double = TODO()
+    fun getValue(x: Double): Double {
+        var summary = 0.0
+        for (i in arrayOfCoeffs.indices) {
+            summary += arrayOfCoeffs[i] * x.pow(arrayOfCoeffs.size - 1 - i)
+        }
+        return summary
+    }
 
     /**
      * Степень (максимальная степень x при ненулевом слагаемом, например 2 для x^2+x+1).
@@ -38,27 +49,62 @@ class Polynom(vararg coeffs: Double) {
      * Слагаемые с нулевыми коэффициентами игнорировать, т.е.
      * степень 0x^2+0x+2 также равна 0.
      */
-    fun degree(): Int = TODO()
+    fun degree(): Int {
+        for (i in arrayOfCoeffs.indices) {
+            if (arrayOfCoeffs[i] != 0.0) {
+                return arrayOfCoeffs.size - 1 - i
+            }
+        }
+        return 0
+    }
 
     /**
      * Сложение
      */
-    operator fun plus(other: Polynom): Polynom = TODO()
+    operator fun plus(other: Polynom): Polynom {
+        val temp = arrayOfCoeffs.reversed().toMutableList()
+        val otherTemp = other.arrayOfCoeffs.reversed().toMutableList()
+        return if (arrayOfCoeffs.size < other.arrayOfCoeffs.size) {
+            for (element in temp.indices) {
+                otherTemp[element] += temp[element]
+            }
+            Polynom(*(otherTemp.reversed()).toDoubleArray())
+        } else {
+            for (element in otherTemp.indices) {
+                temp[element] += otherTemp[element]
+            }
+            Polynom(*(temp.reversed()).toDoubleArray())
+        }
+    }
 
     /**
      * Смена знака (при всех слагаемых)
      */
-    operator fun unaryMinus(): Polynom = TODO()
+    operator fun unaryMinus(): Polynom = Polynom(*arrayOfCoeffs.map { -it }.toDoubleArray())
 
     /**
      * Вычитание
      */
-    operator fun minus(other: Polynom): Polynom = TODO()
+    operator fun minus(other: Polynom): Polynom = this + other.unaryMinus()
 
     /**
      * Умножение
      */
-    operator fun times(other: Polynom): Polynom = TODO()
+    private fun timesNum(num: Double): Polynom = Polynom(*arrayOfCoeffs.map { it * num }.toDoubleArray())
+
+    private fun moveRight(): Polynom =
+        Polynom(*(this.arrayOfCoeffs.toMutableList() + mutableListOf(0.0)).toDoubleArray())
+
+
+    operator fun times(other: Polynom): Polynom {
+        var temp = this
+        var answer = Polynom(0.0)
+        for (element in other.arrayOfCoeffs.reversed()) {
+            answer += temp.timesNum(element)
+            temp = temp.moveRight()
+        }
+        return answer
+    }
 
     /**
      * Деление
@@ -68,20 +114,71 @@ class Polynom(vararg coeffs: Double) {
      *
      * Если A / B = C и A % B = D, то A = B * C + D и степень D меньше степени B
      */
-    operator fun div(other: Polynom): Polynom = TODO()
+    private fun moveLeft(): Polynom =
+        Polynom(*this.arrayOfCoeffs.toMutableList().subList(1, this.arrayOfCoeffs.size).toDoubleArray())
+
+    operator fun div(other: Polynom): Polynom {
+        require((this.degree() >= other.degree()) && (other.arrayOfCoeffs.any { it != 0.0 }))
+        if (this.arrayOfCoeffs.all { it == 0.0 }) {
+            return Polynom(0.0)
+        }
+        val answer = mutableListOf<Double>()
+        var temp = this
+        var tempOther = other
+        while (temp.arrayOfCoeffs[0] == 0.0) {
+            temp = temp.moveLeft()
+        }
+        while (tempOther.arrayOfCoeffs[0] == 0.0) {
+            tempOther = tempOther.moveLeft()
+        }
+        while (temp.arrayOfCoeffs.size >= tempOther.arrayOfCoeffs.size) {
+            val mult = temp.arrayOfCoeffs[0] / tempOther.arrayOfCoeffs[0]
+            var diff = tempOther.timesNum(mult).unaryMinus()
+            answer.add(mult)
+            if (diff.arrayOfCoeffs.size < temp.arrayOfCoeffs.size) {
+                diff =
+                    Polynom(*(diff.arrayOfCoeffs + Array(temp.arrayOfCoeffs.size - diff.arrayOfCoeffs.size) { 0.0 }).toDoubleArray())
+            }
+            temp += diff
+            temp = temp.moveLeft()
+        }
+        return Polynom(*answer.toDoubleArray())
+    }
 
     /**
      * Взятие остатка
      */
-    operator fun rem(other: Polynom): Polynom = TODO()
+    operator fun rem(other: Polynom): Polynom {
+        require((this.degree() >= other.degree()) && (other.arrayOfCoeffs.any { it != 0.0 }))
+        var answer = this + (other * this.div(other)).unaryMinus()
+        while (answer.arrayOfCoeffs[0] == 0.0) {
+            answer = answer.moveLeft()
+        }
+        println(answer)
+        return answer
+    }
 
     /**
      * Сравнение на равенство
      */
-    override fun equals(other: Any?): Boolean = TODO()
+    override fun equals(other: Any?): Boolean {
+        if (other is Polynom) {
+            for (i in 0..10) {
+                if (other.getValue(i.toDouble()) != this.getValue(i.toDouble())) {
+                    return false
+                }
+            }
+            return true
+        }
+        return false
+    }
+
+    override fun toString(): String {
+        return arrayOfCoeffs.toString()
+    }
 
     /**
      * Получение хеш-кода
      */
-    override fun hashCode(): Int = TODO()
+    override fun hashCode(): Int = arrayOfCoeffs.hashCode()
 }

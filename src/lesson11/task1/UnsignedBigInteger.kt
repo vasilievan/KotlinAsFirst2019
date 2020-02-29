@@ -2,7 +2,6 @@ package lesson11.task1
 
 import java.lang.IllegalArgumentException
 import kotlin.math.abs
-import kotlin.math.pow
 
 /**
  * Класс "беззнаковое большое целое число".
@@ -15,6 +14,9 @@ import kotlin.math.pow
  * преобразование в строку/из строки, преобразование в целое/из целого,
  * сравнение на равенство и неравенство
  */
+val MAXINTEGER = UnsignedBigInteger(Int.MAX_VALUE)
+val ZEROINTEGER = UnsignedBigInteger(0)
+
 class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<UnsignedBigInteger> {
     // исключаем случай "012345"
     init {
@@ -32,7 +34,7 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
     /**
      * Конструктор из целого
      */
-    constructor(i: Int) : this(i.toString().map { it.toString().toInt() }.toMutableList())
+    constructor(i: Int) : this(i.toString())
 
     /**
      * Сложение
@@ -54,23 +56,26 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
             other.data.subList(0, other.data.size)
         }
         answer.add(0, 0)
-
         // добваляем элементы другого массива
         if (answer.size == data.size) {
             answer.addInReversed(other.data)
         } else {
             answer.addInReversed(data)
         }
+        return UnsignedBigInteger(answer.normalisation())
+    }
 
-        for (i in answer.size - 1 downTo 1) {
-            answer[i - 1] += answer[i] / 10
-            answer[i] = answer[i] % 10
+    private fun MutableList<Int>.normalisation(): MutableList<Int> {
+        val copy = this.take(this.size).toMutableList()
+        for (i in copy.lastIndex downTo 1) {
+            copy[i - 1] += copy[i] / 10
+            copy[i] = copy[i] % 10
         }
-        if (answer[0] == 0) {
-            answer.removeAt(0)
+        val beginning = copy.indexOfFirst { it != 0 }
+        if (beginning == -1) {
+            return mutableListOf(0)
         }
-
-        return UnsignedBigInteger(answer.joinToString("") { it.toString() })
+        return copy.subList(beginning, copy.size)
     }
 
     private fun MutableList<Int>.deleteInReversed(another: MutableList<Int>): MutableList<Int> {
@@ -92,7 +97,7 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
             throw ArithmeticException()
         }
         // вычитаем элементы другого массива
-        val answer = this.data.deleteInReversed(other.data)
+        val answer = this.data.take(data.size).toMutableList().deleteInReversed(other.data)
         for (i in 0 until answer.size) {
             if (answer[i] < 0) {
                 var j = i
@@ -106,21 +111,10 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
                 answer[i] += 10
             }
         }
-        for (i in answer.size - 1 downTo 1) {
-            answer[i - 1] += answer[i] / 10
-            answer[i] = answer[i] % 10
-        }
         if (answer.all { it == 0 }) {
-            return UnsignedBigInteger(0)
+            return ZEROINTEGER
         }
-        var firstNotZero = 0
-        for (i in 0 until answer.size) {
-            if (answer[i] != 0) {
-                firstNotZero = i
-                break
-            }
-        }
-        return UnsignedBigInteger(answer.subList(firstNotZero, answer.size).joinToString("") { it.toString() })
+        return UnsignedBigInteger(answer.normalisation())
     }
 
     /**
@@ -130,8 +124,8 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
     private fun MutableList<Int>.moveLeft(): MutableList<Int> = (this + mutableListOf(0)).toMutableList()
 
     operator fun times(other: UnsignedBigInteger): UnsignedBigInteger {
-        if ((this == UnsignedBigInteger(0)) || (other == UnsignedBigInteger(0))) {
-            return UnsignedBigInteger(0)
+        if ((this == ZEROINTEGER) || (other == ZEROINTEGER)) {
+            return ZEROINTEGER
         }
         val answer = MutableList((data.size) * (other.data.size)) { 0 }
         var multiplied = data.subList(0, data.size)
@@ -140,18 +134,7 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
             answer.addInReversed(multiplied.map { it * element }.toMutableList())
             multiplied = multiplied.moveLeft()
         }
-        for (i in answer.size - 1 downTo 1) {
-            answer[i - 1] += answer[i] / 10
-            answer[i] = answer[i] % 10
-        }
-        var firstNotZero = 0
-        for (i in 0 until answer.size) {
-            if (answer[i] != 0) {
-                firstNotZero = i
-                break
-            }
-        }
-        return UnsignedBigInteger(answer.subList(firstNotZero, answer.size).joinToString("") { it.toString() })
+        return UnsignedBigInteger(answer.normalisation())
     }
 
     /**
@@ -162,15 +145,15 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
         UnsignedBigInteger((data + MutableList(n) { 0 }).joinToString("") { it.toString() })
 
     operator fun div(other: UnsignedBigInteger): UnsignedBigInteger {
-        require(other != UnsignedBigInteger(0))
-        if (this == UnsignedBigInteger(0)) {
-            return UnsignedBigInteger(0)
+        require(other != ZEROINTEGER)
+        if (this == ZEROINTEGER) {
+            return ZEROINTEGER
         }
         if (other == UnsignedBigInteger(1)) {
             return this
         }
         if (this < other) {
-            return UnsignedBigInteger(0)
+            return ZEROINTEGER
         }
         val answer = MutableList(this.data.size) { 0 }
         fun recursiveSubtraction(dividend: UnsignedBigInteger, divisor: UnsignedBigInteger) {
@@ -186,25 +169,29 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
             }
         }
         recursiveSubtraction(this, other)
-        var last = answer.size
-        for (i in answer.size - 1 downTo 0) {
-            if (answer[i] != 0) {
-                last = i + 1
-                break
-            }
+        return UnsignedBigInteger(answer.divNormalisation())
+    }
+
+    private fun MutableList<Int>.divNormalisation(): MutableList<Int> {
+        val lastNotZero = this.indexOfLast { it != 0 }
+        if (lastNotZero == -1) {
+            return mutableListOf(0)
         }
-        return UnsignedBigInteger(
-            answer.subList(0, last).reversed().joinToString("") { it.toString() })
+        val correctCopy = mutableListOf<Int>()
+        for (index in lastNotZero downTo 0) {
+            correctCopy.add(this[index])
+        }
+        return correctCopy
     }
 
     /**
      * Взятие остатка
      */
     operator fun rem(other: UnsignedBigInteger): UnsignedBigInteger {
-        require(other != UnsignedBigInteger(0))
-        val n = UnsignedBigInteger(data.joinToString("") { it.toString() })
-        val temp = this / other
-        val mult = other * temp
+        require(other != ZEROINTEGER)
+        val n = UnsignedBigInteger(data)
+        val fullPart = this / other
+        val mult = other * fullPart
         return n - mult
     }
 
@@ -213,12 +200,7 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
      */
     override fun equals(other: Any?): Boolean {
         if ((other is UnsignedBigInteger) && (data.size == other.data.size)) {
-            for (i in 0 until data.size) {
-                if (data[i] != other.data[i]) {
-                    return false
-                }
-            }
-            return true
+            return (this - other).data.all { it == 0 }
         }
         return false
     }
@@ -253,7 +235,7 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
      * Если число не влезает в диапазон Int, бросить ArithmeticException
      */
     fun toInt(): Int {
-        if (this <= UnsignedBigInteger(Int.MAX_VALUE)) {
+        if (this <= MAXINTEGER) {
             return this.data.joinToString("") { it.toString() }.toInt()
         } else {
             throw ArithmeticException()

@@ -12,7 +12,6 @@ class OpenHashSetTest {
         assertEquals(32, set.capacity)
         assertEquals(0, set.size)
         set.add(42)
-        set.add(42)
         assertEquals(1, set.size)
         set.add(21)
         assertEquals(2, set.size)

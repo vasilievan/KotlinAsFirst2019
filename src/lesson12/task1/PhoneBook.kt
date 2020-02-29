@@ -58,19 +58,10 @@ class PhoneBook {
      * либо такой номер телефона зарегистрирован за другим человеком.
      */
     fun addPhone(name: String, phone: String): Boolean {
-        if (phone.contains(Regex("""[^\d+*#\-]"""))) return false
-        var indicator = false
-        for ((key, value) in dataBase) {
-            if (phone in value) {
-                return false
-            }
-            if (key == name) {
-                indicator = true
-            }
-        }
-        if (indicator) {
-            val temp = dataBase[name]!! + phone
-            dataBase[name] = temp
+        if (phone.contains(Regex("""[^\d+*#\-]""")) || dataBase.values.any { phone in it }) return false
+        val who = dataBase[name]
+        if (who != null) {
+            dataBase[name] = who + phone
             return true
         }
         return false
@@ -84,12 +75,9 @@ class PhoneBook {
      */
     fun removePhone(name: String, phone: String): Boolean {
         if (phone.contains(Regex("""[^\d+*#\-]"""))) return false
-        if (name !in dataBase) {
-            return false
-        }
-        if (phone in dataBase[name]!!) {
-            val temp = dataBase[name]!! - phone
-            dataBase[name] = temp
+        val who = dataBase[name]
+        if ((who != null) && (phone in who)) {
+            dataBase[name] = who - name
             return true
         }
         return false
@@ -130,12 +118,7 @@ class PhoneBook {
      */
     override fun equals(other: Any?): Boolean {
         if (other is PhoneBook) {
-            for ((key, value) in dataBase) {
-                if (other.dataBase[key] != value) {
-                    return false
-                }
-            }
-            return true
+            return this.dataBase == other.dataBase
         }
         return false
     }

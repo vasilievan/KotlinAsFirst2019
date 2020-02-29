@@ -11,6 +11,12 @@ package lesson11.task1
  *
  * Аргументы конструктора -- вещественная и мнимая часть числа.
  */
+fun helpToConstract(s: String): Pair<Double, Double> {
+    require(s.matches(Regex("""-?\d+(\.\d+)?[+-]\d+(\.\d+)?i""")))
+    val constracted = Regex("""-?\d+(\.\d+)?""").findAll(s).map { it.value.toDouble() }.toList()
+    return Pair(constracted[0], constracted[1])
+}
+
 class Complex(val re: Double, val im: Double) {
 
     /**
@@ -21,10 +27,7 @@ class Complex(val re: Double, val im: Double) {
     /**
      * Конструктор из строки вида x+yi
      */
-    constructor(s: String) : this(
-        Regex("""-?\d+(\.\d+)?""").findAll(s).elementAt(0).value.toDouble(),
-        Regex("""-?\d+(\.\d+)?""").findAll(s).elementAt(1).value.toDouble()
-    )
+    constructor(s: String) : this(helpToConstract(s).first, helpToConstract(s).second)
 
     /**
      * Сложение.

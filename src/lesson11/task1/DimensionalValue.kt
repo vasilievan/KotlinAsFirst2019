@@ -16,30 +16,36 @@ package lesson11.task1
  * - либо соответствовать одной из приставок, к которой приписана сама размерность (Km, Kg, mm, mg)
  * - во всех остальных случаях следует бросить IllegalArgumentException
  */
-fun String.findThePrefixWeAreLookingFor(): String = Regex("""[Km]?[mg]""").find(this)!!.value
 
-fun String.findTheDoubleValue(): Double {
-    require(this.matches(Regex("""^-?\d+(\.\d+)? [Km]?[mg]$""")))
-    return Regex("""\d+(\.\d+)?""").find(this)!!.value.toDouble()
+fun findTheValue(s: String): Pair<Double, String> {
+    require(s.matches(Regex("""-?\d+(\.\d+)? [A-Za-z]{1,2}""")))
+    val temp = s.split(" ")
+    val dimPr = DimensionPrefix.values().map { it.abbreviation }.toSet()
+    val dim = Dimension.values().map { it.abbreviation }.toSet()
+    if (((temp[1].length == 2) && (temp[1][0].toString() in dimPr) && (temp[1][1].toString() in dim)) ||
+        ((temp[1].length == 1) && (temp[1] in dim))) {
+        return Pair(temp[0].toDouble(), temp[1])
+    }
+    throw IllegalArgumentException()
 }
 
 class DimensionalValue(private val valueRaw: Double, private val dimensionStr: String) : Comparable<DimensionalValue> {
-
-    constructor(s: String) : this(s.findTheDoubleValue(), s.findThePrefixWeAreLookingFor())
+    constructor(s: String) : this(findTheValue(s).first, findTheValue(s).second)
 
     /**
      * Величина с БАЗОВОЙ размерностью (например для 1.0Kg следует вернуть результат в граммах -- 1000.0)
      */
     val value: Double
         get() {
-            return if (dimensionStr.length == 2) {
-                if (dimensionStr.startsWith("K")) {
-                    valueRaw * DimensionPrefix.KILO.multiplier
-                } else {
-                    valueRaw * DimensionPrefix.MILLI.multiplier
+            if (dimensionStr.length == 2) {
+                for (element in DimensionPrefix.values()) {
+                    if (element.abbreviation == dimensionStr[0].toString()) {
+                        return valueRaw * element.multiplier
+                    }
                 }
+                throw IllegalArgumentException()
             } else {
-                valueRaw
+                return valueRaw
             }
         }
 
@@ -48,11 +54,12 @@ class DimensionalValue(private val valueRaw: Double, private val dimensionStr: S
      */
     val dimension: Dimension
         get() {
-            return if (dimensionStr.endsWith("m")) {
-                Dimension.METER
-            } else {
-                Dimension.GRAM
+            for (element in Dimension.values()) {
+                if (dimensionStr.last().toString() == element.abbreviation) {
+                    return element
+                }
             }
+            throw IllegalArgumentException()
         }
 
     /**
@@ -106,20 +113,15 @@ class DimensionalValue(private val valueRaw: Double, private val dimensionStr: S
     /**
      * Сравнение на равенство
      */
-    override fun equals(other: Any?): Boolean = (other is DimensionalValue) && (dimension == other.dimension) && (value == other.value)
+    override fun equals(other: Any?): Boolean =
+        (other is DimensionalValue) && (dimension == other.dimension) && (value == other.value)
 
     /**
      * Сравнение на больше/меньше. Если базовая размерность разная, бросить IllegalArgumentException
      */
     override fun compareTo(other: DimensionalValue): Int {
         require(dimension == other.dimension)
-        if (value < other.value) {
-            return -1
-        }
-        if (value > other.value) {
-            return 1
-        }
-        return 0
+        return this.value.compareTo(other.value)
     }
 
     override fun hashCode(): Int {

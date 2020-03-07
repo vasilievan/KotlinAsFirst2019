@@ -24,15 +24,14 @@ import kotlin.math.pow
  */
 class Polynom(vararg coeffs: Double) {
 
-    val listOfCoeffs = if (coeffs.indexOfFirst { it != 0.0 } != -1) coeffs.toList().subList(
-        coeffs.indexOfFirst { it != 0.0 },
-        coeffs.size
-    ) else listOf(0.0)
+    constructor(listOfCoeffs: List<Double>): this(*listOfCoeffs.toDoubleArray())
+
+    val listOfCoeffs = if (coeffs.any { it != 0.0 }) coeffs.dropWhile { it == 0.0 } else listOf(0.0)
 
     /**
      * Геттер: вернуть значение коэффициента при x^i
      */
-    fun coeff(i: Int): Double = listOfCoeffs[i]
+    operator fun get(i: Int): Double = listOfCoeffs[i]
 
     /**
      * Расчёт значения при заданном x
@@ -52,14 +51,7 @@ class Polynom(vararg coeffs: Double) {
      * Слагаемые с нулевыми коэффициентами игнорировать, т.е.
      * степень 0x^2+0x+2 также равна 0.
      */
-    fun degree(): Int {
-        for (i in listOfCoeffs.indices) {
-            if (listOfCoeffs[i] != 0.0) {
-                return listOfCoeffs.size - 1 - i
-            }
-        }
-        return 0
-    }
+    fun degree(): Int = listOfCoeffs.size - 1
 
     /**
      * Сложение
@@ -68,9 +60,8 @@ class Polynom(vararg coeffs: Double) {
         val minSize = minOf(listOfCoeffs.size, other.listOfCoeffs.size)
         val difference = abs(listOfCoeffs.size - other.listOfCoeffs.size)
         val resultList =
-            if (listOfCoeffs.size > other.listOfCoeffs.size) listOfCoeffs.take(difference).toMutableList() else other.listOfCoeffs.take(
-                difference
-            ).toMutableList()
+            if (listOfCoeffs.size > other.listOfCoeffs.size) listOfCoeffs.take(difference).toMutableList()
+            else other.listOfCoeffs.take(difference).toMutableList()
         for (index in 0 until minSize) {
             if (listOfCoeffs.size > other.listOfCoeffs.size) {
                 resultList.add(listOfCoeffs[index + difference] + other.listOfCoeffs[index])
@@ -78,13 +69,13 @@ class Polynom(vararg coeffs: Double) {
                 resultList.add(listOfCoeffs[index] + other.listOfCoeffs[index + difference])
             }
         }
-        return Polynom(*resultList.toDoubleArray())
+        return Polynom(resultList)
     }
 
     /**
      * Смена знака (при всех слагаемых)
      */
-    operator fun unaryMinus(): Polynom = Polynom(*listOfCoeffs.map { -it }.toDoubleArray())
+    operator fun unaryMinus(): Polynom = Polynom(listOfCoeffs.map { -it })
 
     /**
      * Вычитание
@@ -94,18 +85,18 @@ class Polynom(vararg coeffs: Double) {
     /**
      * Умножение
      */
-    private fun timesNum(num: Double): Polynom = Polynom(*listOfCoeffs.map { it * num }.toDoubleArray())
+    private fun timesNum(num: Double): Polynom = Polynom(listOfCoeffs.map { it * num })
 
     private fun moveRight(): Polynom =
-        Polynom(*(this.listOfCoeffs.toMutableList() + mutableListOf(0.0)).toDoubleArray())
+        Polynom(this.listOfCoeffs.toMutableList() + mutableListOf(0.0))
 
 
     operator fun times(other: Polynom): Polynom {
-        var firstPolynom = this
+        var multiplier = this
         var answer = Polynom(0.0)
         for (element in other.listOfCoeffs.reversed()) {
-            answer += firstPolynom.timesNum(element)
-            firstPolynom = firstPolynom.moveRight()
+            answer += multiplier.timesNum(element)
+            multiplier = multiplier.moveRight()
         }
         return answer
     }
@@ -119,7 +110,7 @@ class Polynom(vararg coeffs: Double) {
      * Если A / B = C и A % B = D, то A = B * C + D и степень D меньше степени B
      */
     private fun moveLeft(): Polynom =
-        Polynom(*this.listOfCoeffs.toMutableList().subList(1, this.listOfCoeffs.size).toDoubleArray())
+        Polynom(this.listOfCoeffs.toMutableList().subList(1, this.listOfCoeffs.size))
 
     operator fun div(other: Polynom): Polynom {
         require((this.degree() >= other.degree()) && (other.listOfCoeffs.any { it != 0.0 }))
@@ -131,13 +122,12 @@ class Polynom(vararg coeffs: Double) {
         val secondCopy = other.listOfCoeffs.take(other.listOfCoeffs.size)
         while (firstCopy.size >= secondCopy.size) {
             val mul = firstCopy[0] / secondCopy[0]
-            val division =
-                (secondCopy + MutableList(firstCopy.size - secondCopy.size) { 0.0 }).map { it * -mul }
+            val division = secondCopy.map { it * -mul } + MutableList(firstCopy.size - secondCopy.size) { 0.0 }
             answer.add(mul)
-            firstCopy = firstCopy.zip(division).map {it.first + it.second}.toMutableList()
+            firstCopy = firstCopy.zip(division).map { it.first + it.second}.toMutableList()
             firstCopy.removeAt(0)
         }
-        return Polynom(*answer.toDoubleArray())
+        return Polynom(answer)
     }
 
     private operator fun compareTo(other: Polynom): Int {
@@ -173,13 +163,8 @@ class Polynom(vararg coeffs: Double) {
      * Сравнение на равенство
      */
     override fun equals(other: Any?): Boolean {
-        if ((other is Polynom) && (listOfCoeffs.size == other.listOfCoeffs.size)) {
-            for (element in listOfCoeffs.indices) {
-                if (listOfCoeffs[element] != other.listOfCoeffs[element]) {
-                    return false
-                }
-            }
-            return true
+        if (other is Polynom) {
+            return listOfCoeffs == other.listOfCoeffs
         }
         return false
     }
@@ -189,27 +174,22 @@ class Polynom(vararg coeffs: Double) {
         for (element in listOfCoeffs.indices) {
             if (listOfCoeffs[element] == 0.0) {
                 continue
-            } else if (listOfCoeffs.size - element == 2) {
-                if (listOfCoeffs[element] == -1.0) {
-                    sb.append("-x^${listOfCoeffs.lastIndex - element}")
-                } else if (listOfCoeffs[element] == 1.0) {
-                    sb.append("+x^${listOfCoeffs.lastIndex - element}")
-                } else if (listOfCoeffs[element] < 0.0) {
-                    sb.append("${listOfCoeffs[element]}*x^${listOfCoeffs.lastIndex - element}")
-                } else {
-                    sb.append("+${listOfCoeffs[element]}*x^${listOfCoeffs.lastIndex - element}")
-                }
             } else if (listOfCoeffs.size - element == 1) {
                 sb.append("+${listOfCoeffs[element]}")
             } else {
-                if (listOfCoeffs[element] == -1.0) {
-                    sb.append("-x^${listOfCoeffs.lastIndex - element}")
-                } else if (listOfCoeffs[element] == 1.0) {
-                    sb.append("+x^${listOfCoeffs.lastIndex - element}")
-                } else if (listOfCoeffs[element] < 0.0) {
-                    sb.append("${listOfCoeffs[element]}*x^${listOfCoeffs.lastIndex - element}")
-                } else {
-                    sb.append("+${listOfCoeffs[element]}*x^${listOfCoeffs.lastIndex - element}")
+                when {
+                    listOfCoeffs[element] == -1.0 -> {
+                        sb.append("-x^${listOfCoeffs.lastIndex - element}")
+                    }
+                    listOfCoeffs[element] == 1.0 -> {
+                        sb.append("+x^${listOfCoeffs.lastIndex - element}")
+                    }
+                    listOfCoeffs[element] < 0.0 -> {
+                        sb.append("${listOfCoeffs[element]}*x^${listOfCoeffs.lastIndex - element}")
+                    }
+                    else -> {
+                        sb.append("+${listOfCoeffs[element]}*x^${listOfCoeffs.lastIndex - element}")
+                    }
                 }
             }
         }

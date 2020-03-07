@@ -2,6 +2,8 @@
 
 package lesson11.task1
 
+import java.lang.NumberFormatException
+
 /**
  * Класс "комплексое число".
  *
@@ -11,13 +13,17 @@ package lesson11.task1
  *
  * Аргументы конструктора -- вещественная и мнимая часть числа.
  */
-fun helpToConstract(s: String): Pair<Double, Double> {
-    require(s.matches(Regex("""-?\d+(\.\d+)?[+-]\d+(\.\d+)?i""")))
-    val constracted = Regex("""-?\d+(\.\d+)?""").findAll(s).map { it.value.toDouble() }.toList()
-    return Pair(constracted[0], constracted[1])
-}
-
 class Complex(val re: Double, val im: Double) {
+
+    companion object {
+        fun constructorHelper(s: String): Pair<Double, Double> {
+            val expression = Regex("""^(-?\d+(\.\d+)?)([+-]\d+(\.\d+)?)i$""").matchEntire(s)
+            return Pair(
+                expression!!.groups[1]?.value?.toDouble() ?: throw NumberFormatException(),
+                expression.groups[3]?.value?.toDouble() ?: throw NumberFormatException()
+            )
+        }
+    }
 
     /**
      * Конструктор из вещественного числа
@@ -27,7 +33,9 @@ class Complex(val re: Double, val im: Double) {
     /**
      * Конструктор из строки вида x+yi
      */
-    constructor(s: String) : this(helpToConstract(s).first, helpToConstract(s).second)
+    constructor(s: String) : this(constructorHelper(s))
+
+    constructor(p: Pair<Double, Double>) : this(p.first, p.second)
 
     /**
      * Сложение.

@@ -14,10 +14,13 @@ import kotlin.math.abs
  * преобразование в строку/из строки, преобразование в целое/из целого,
  * сравнение на равенство и неравенство
  */
-val MAXINTEGER = UnsignedBigInteger(Int.MAX_VALUE)
-val ZEROINTEGER = UnsignedBigInteger(0)
 
 class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<UnsignedBigInteger> {
+    companion object {
+        val MAXINTEGER = UnsignedBigInteger(Int.MAX_VALUE)
+        val ZEROINTEGER = UnsignedBigInteger(0)
+    }
+
     // исключаем случай "012345"
     init {
         if ((data.size > 1) && (data[0] == 0)) {
@@ -40,24 +43,16 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
      * Сложение
      */
 
-    private fun MutableList<Int>.addInReversed(another: MutableList<Int>): MutableList<Int> {
-        val diff = abs(this.size - another.size)
-        for (i in another.size - 1 downTo 0) {
-            this[i + diff] += another[i]
-        }
-        return this
-    }
-
     operator fun plus(other: UnsignedBigInteger): UnsignedBigInteger {
-        // answer = массив наибольшей длины
-        val answer: MutableList<Int> = if (data.size > other.data.size) {
-            data.subList(0, data.size)
+        val longest = if (data.size > other.data.size) {
+            data.take(data.size)
         } else {
-            other.data.subList(0, other.data.size)
+            other.data.take(other.data.size)
         }
+        val answer = longest.toMutableList()
         answer.add(0, 0)
         // добваляем элементы другого массива
-        if (answer.size == data.size) {
+        if (answer.size == data.size + 1) {
             answer.addInReversed(other.data)
         } else {
             answer.addInReversed(data)
@@ -66,22 +61,30 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
     }
 
     private fun MutableList<Int>.normalisation(): MutableList<Int> {
-        val copy = this.take(this.size).toMutableList()
-        for (i in copy.lastIndex downTo 1) {
-            copy[i - 1] += copy[i] / 10
-            copy[i] = copy[i] % 10
+        //val copy = this.take(this.size).toMutableList()
+        for (i in this.lastIndex downTo 1) {
+            this[i - 1] += this[i] / 10
+            this[i] = this[i] % 10
         }
-        val beginning = copy.indexOfFirst { it != 0 }
+        val beginning = this.indexOfFirst { it != 0 }
         if (beginning == -1) {
             return mutableListOf(0)
         }
-        return copy.subList(beginning, copy.size)
+        return this.subList(beginning, this.size)
     }
 
     private fun MutableList<Int>.deleteInReversed(another: MutableList<Int>): MutableList<Int> {
         val diff = abs(this.size - another.size)
         for (i in another.size - 1 downTo 0) {
             this[i + diff] -= another[i]
+        }
+        return this
+    }
+
+    private fun MutableList<Int>.addInReversed(another: MutableList<Int>): MutableList<Int> {
+        val diff = abs(this.size - another.size)
+        for (i in another.size - 1 downTo 0) {
+            this[i + diff] += another[i]
         }
         return this
     }
@@ -177,11 +180,7 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
         if (lastNotZero == -1) {
             return mutableListOf(0)
         }
-        val correctCopy = mutableListOf<Int>()
-        for (index in lastNotZero downTo 0) {
-            correctCopy.add(this[index])
-        }
-        return correctCopy
+        return this.take(lastNotZero + 1).reversed().toMutableList()
     }
 
     /**
@@ -199,8 +198,8 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
      * Сравнение на равенство (по контракту Any.equals)
      */
     override fun equals(other: Any?): Boolean {
-        if ((other is UnsignedBigInteger) && (data.size == other.data.size)) {
-            return (this - other).data.all { it == 0 }
+        if (other is UnsignedBigInteger) {
+            return data == other.data
         }
         return false
     }
@@ -228,7 +227,7 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
     /**
      * Преобразование в строку
      */
-    override fun toString(): String = data.joinToString("") { it.toString() }
+    override fun toString(): String = data.joinToString("")
 
     /**
      * Преобразование в целое

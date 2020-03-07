@@ -10,7 +10,7 @@ class PolynomTest {
     private fun assertApproxEquals(expected: Polynom, actual: Polynom, eps: Double) {
         assertEquals(expected.degree(), actual.degree())
         for (i in 0..expected.degree()) {
-            assertEquals(expected.coeff(i), actual.coeff(i), eps)
+            assertEquals(expected[i], actual[i], eps)
         }
     }
 

@@ -89,8 +89,9 @@ class PhoneBook {
      */
     fun phones(name: String): Set<String> {
         require(name.matches(Regex("""([A-ZА-ЯЁ][a-zа-яё]*) [A-ZА-ЯЁ][a-zа-я]*""")))
-        if (name in dataBase) {
-            return dataBase[name]!!
+        val phoneNumbers = dataBase[name]
+        if (phoneNumbers != null) {
+            return phoneNumbers
         }
         return setOf()
     }

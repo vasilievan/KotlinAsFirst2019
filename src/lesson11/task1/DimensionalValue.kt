@@ -17,36 +17,42 @@ package lesson11.task1
  * - во всех остальных случаях следует бросить IllegalArgumentException
  */
 
-fun findTheValue(s: String): Pair<Double, String> {
-    require(s.matches(Regex("""-?\d+(\.\d+)? [A-Za-z]{1,2}""")))
-    val temp = s.split(" ")
-    val dimPr = DimensionPrefix.values().map { it.abbreviation }.toSet()
-    val dim = Dimension.values().map { it.abbreviation }.toSet()
-    if (((temp[1].length == 2) && (temp[1][0].toString() in dimPr) && (temp[1][1].toString() in dim)) ||
-        ((temp[1].length == 1) && (temp[1] in dim))) {
-        return Pair(temp[0].toDouble(), temp[1])
-    }
-    throw IllegalArgumentException()
-}
-
 class DimensionalValue(private val valueRaw: Double, private val dimensionStr: String) : Comparable<DimensionalValue> {
-    constructor(s: String) : this(findTheValue(s).first, findTheValue(s).second)
+    companion object {
+        fun findTheValue(s: String): Pair<Double, String> {
+            require(s.matches(Regex("""-?\d+(\.\d+)? [A-Za-z]+""")))
+            val separatedString = s.split(" ")
+            val suffix = Dimension.values().map { it.abbreviation }.find { it in separatedString[1] }
+            val prefix = DimensionPrefix.values().map { it.abbreviation }.find { it in separatedString[1] }
+            if (suffix == null) {
+                throw IllegalArgumentException()
+            }
+            if (prefix == null) {
+                return Pair(separatedString[0].toDouble(), separatedString[1])
+            }
+            if (separatedString[1].startsWith(prefix) && separatedString[1].endsWith(suffix)) {
+                return Pair(separatedString[0].toDouble(), separatedString[1])
+            } else {
+                throw IllegalArgumentException()
+            }
+        }
+    }
+
+    constructor(p: Pair<Double, String>) : this(p.first, p.second)
+
+    constructor(s: String) : this(findTheValue(s))
 
     /**
      * Величина с БАЗОВОЙ размерностью (например для 1.0Kg следует вернуть результат в граммах -- 1000.0)
      */
     val value: Double
         get() {
-            if (dimensionStr.length == 2) {
-                for (element in DimensionPrefix.values()) {
-                    if (element.abbreviation == dimensionStr[0].toString()) {
-                        return valueRaw * element.multiplier
-                    }
-                }
-                throw IllegalArgumentException()
-            } else {
+            val dimension = this.dimension.abbreviation
+            val multi = dimensionStr.replaceFirst(dimension, "")
+            if (multi.isEmpty()) {
                 return valueRaw
             }
+            return valueRaw * DimensionPrefix.values().find { it.abbreviation == multi }!!.multiplier
         }
 
     /**
@@ -54,10 +60,11 @@ class DimensionalValue(private val valueRaw: Double, private val dimensionStr: S
      */
     val dimension: Dimension
         get() {
-            for (element in Dimension.values()) {
-                if (dimensionStr.last().toString() == element.abbreviation) {
-                    return element
-                }
+            val dimensions = Dimension.values()
+            val dimensionsAbbreviations = dimensions.map { it.abbreviation }
+            val suff = dimensionsAbbreviations.find { it in dimensionStr }
+            if (suff != null) {
+                return dimensions[dimensionsAbbreviations.indexOf(suff)]
             }
             throw IllegalArgumentException()
         }

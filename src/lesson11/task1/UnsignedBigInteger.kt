@@ -19,13 +19,7 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
     companion object {
         val MAXINTEGER = UnsignedBigInteger(Int.MAX_VALUE)
         val ZEROINTEGER = UnsignedBigInteger(0)
-    }
-
-    // исключаем случай "012345"
-    init {
-        if ((data.size > 1) && (data[0] == 0)) {
-            throw IllegalArgumentException()
-        }
+        val ONEINTEGER = UnsignedBigInteger(1)
     }
 
     /**
@@ -61,16 +55,16 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
     }
 
     private fun MutableList<Int>.normalisation(): MutableList<Int> {
-        //val copy = this.take(this.size).toMutableList()
-        for (i in this.lastIndex downTo 1) {
-            this[i - 1] += this[i] / 10
-            this[i] = this[i] % 10
+        val copy = this.take(this.size).toMutableList()
+        for (i in copy.lastIndex downTo 1) {
+            copy[i - 1] += copy[i] / 10
+            copy[i] = copy[i] % 10
         }
-        val beginning = this.indexOfFirst { it != 0 }
+        val beginning = copy.indexOfFirst { it != 0 }
         if (beginning == -1) {
             return mutableListOf(0)
         }
-        return this.subList(beginning, this.size)
+        return copy.subList(beginning, copy.size)
     }
 
     private fun MutableList<Int>.deleteInReversed(another: MutableList<Int>): MutableList<Int> {
@@ -145,14 +139,14 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
      */
 
     fun moveRight(n: Int): UnsignedBigInteger =
-        UnsignedBigInteger((data + MutableList(n) { 0 }).joinToString("") { it.toString() })
+        UnsignedBigInteger((data + MutableList(n) { 0 }).joinToString(""))
 
     operator fun div(other: UnsignedBigInteger): UnsignedBigInteger {
         require(other != ZEROINTEGER)
         if (this == ZEROINTEGER) {
             return ZEROINTEGER
         }
-        if (other == UnsignedBigInteger(1)) {
+        if (other == ONEINTEGER) {
             return this
         }
         if (this < other) {
@@ -235,7 +229,7 @@ class UnsignedBigInteger(private var data: MutableList<Int>) : Comparable<Unsign
      */
     fun toInt(): Int {
         if (this <= MAXINTEGER) {
-            return this.data.joinToString("") { it.toString() }.toInt()
+            return this.data.joinToString("").toInt()
         } else {
             throw ArithmeticException()
         }

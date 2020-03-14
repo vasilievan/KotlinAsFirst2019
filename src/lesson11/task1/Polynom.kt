@@ -24,7 +24,7 @@ import kotlin.math.pow
  */
 class Polynom(vararg coeffs: Double) {
 
-    constructor(listOfCoeffs: List<Double>): this(*listOfCoeffs.toDoubleArray())
+    constructor(listOfCoeffs: List<Double>) : this(*listOfCoeffs.toDoubleArray())
 
     val listOfCoeffs = if (coeffs.any { it != 0.0 }) coeffs.dropWhile { it == 0.0 } else listOf(0.0)
 
@@ -88,7 +88,7 @@ class Polynom(vararg coeffs: Double) {
     private fun timesNum(num: Double): Polynom = Polynom(listOfCoeffs.map { it * num })
 
     private fun moveRight(): Polynom =
-        Polynom(this.listOfCoeffs.toMutableList() + mutableListOf(0.0))
+        Polynom(this.listOfCoeffs + 0.0)
 
 
     operator fun times(other: Polynom): Polynom {
@@ -119,12 +119,12 @@ class Polynom(vararg coeffs: Double) {
         }
         val answer = mutableListOf<Double>()
         var firstCopy = listOfCoeffs.take(listOfCoeffs.size).toMutableList()
-        val secondCopy = other.listOfCoeffs.take(other.listOfCoeffs.size)
-        while (firstCopy.size >= secondCopy.size) {
-            val mul = firstCopy[0] / secondCopy[0]
-            val division = secondCopy.map { it * -mul } + MutableList(firstCopy.size - secondCopy.size) { 0.0 }
+        while (firstCopy.size >= other.listOfCoeffs.size) {
+            val mul = firstCopy[0] / other.listOfCoeffs[0]
+            val division =
+                other.listOfCoeffs.map { it * -mul } + List(firstCopy.size - other.listOfCoeffs.size) { 0.0 }
             answer.add(mul)
-            firstCopy = firstCopy.zip(division).map { it.first + it.second}.toMutableList()
+            firstCopy = firstCopy.zip(division).map { it.first + it.second }.toMutableList()
             firstCopy.removeAt(0)
         }
         return Polynom(answer)
@@ -175,7 +175,11 @@ class Polynom(vararg coeffs: Double) {
             if (listOfCoeffs[element] == 0.0) {
                 continue
             } else if (listOfCoeffs.size - element == 1) {
-                sb.append("+${listOfCoeffs[element]}")
+                if (listOfCoeffs[element] > 0) {
+                    sb.append("+${listOfCoeffs[element]}")
+                } else {
+                    sb.append("${listOfCoeffs[element]}")
+                }
             } else {
                 when {
                     listOfCoeffs[element] == -1.0 -> {

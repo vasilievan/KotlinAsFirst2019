@@ -30,7 +30,11 @@ class DimensionalValue(private val valueRaw: Double, private val dimensionStr: S
             if (prefix == null) {
                 return Pair(separatedString[0].toDouble(), separatedString[1])
             }
-            if (separatedString[1].startsWith(prefix) && separatedString[1].endsWith(suffix)) {
+            // первое условие обрабатывает ситуацию 1 m -> prefix = m, suffix = m
+            // второе - 1 mm, 1 Kg и т.д.
+            if ((separatedString[1].replaceFirst(suffix, "").isEmpty()) ||
+                (separatedString[1].replaceFirst(suffix, "") == prefix)
+            ) {
                 return Pair(separatedString[0].toDouble(), separatedString[1])
             } else {
                 throw IllegalArgumentException()

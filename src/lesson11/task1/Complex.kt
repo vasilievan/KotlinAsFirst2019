@@ -17,10 +17,13 @@ class Complex(val re: Double, val im: Double) {
 
     companion object {
         fun constructorHelper(s: String): Pair<Double, Double> {
-            val expression = Regex("""^(-?\d+(\.\d+)?)([+-]\d+(\.\d+)?)i$""").matchEntire(s)
+            val incorrectFormat = "Incorrect number format, please input number like that: x+yi."
+            val expression =
+                Regex("""^(-?\d+(\.\d+)?)([+-]\d+(\.\d+)?)i$""").matchEntire(s)
+                    ?: throw NumberFormatException(incorrectFormat)
             return Pair(
-                expression!!.groups[1]?.value?.toDouble() ?: throw NumberFormatException(),
-                expression.groups[3]?.value?.toDouble() ?: throw NumberFormatException()
+                expression.groups[1]?.value?.toDouble() ?: throw NumberFormatException(incorrectFormat),
+                expression.groups[3]?.value?.toDouble() ?: throw NumberFormatException(incorrectFormat)
             )
         }
     }

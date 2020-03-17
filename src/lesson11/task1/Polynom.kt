@@ -110,7 +110,7 @@ class Polynom(vararg coeffs: Double) {
      * Если A / B = C и A % B = D, то A = B * C + D и степень D меньше степени B
      */
     private fun moveLeft(): Polynom =
-        Polynom(this.listOfCoeffs.toMutableList().subList(1, this.listOfCoeffs.size))
+        Polynom(this.listOfCoeffs.subList(1, this.listOfCoeffs.size))
 
     operator fun div(other: Polynom): Polynom {
         require((this.degree() >= other.degree()) && (other.listOfCoeffs.any { it != 0.0 }))
